@@ -1,6 +1,6 @@
 {
   "rewrites": [
     { "source": "/streaming", "destination": "/index.html" },
-    { "source": "/streaming/(.*)", "destination": "/index.html" }
+    { "source": "/streaming/(?!assets/).*", "destination": "/index.html" }
   ]
 }
