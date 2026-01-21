@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { FiSearch, FiUser } from "react-icons/fi";
+import { FiSearch, FiUser, FiStar } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { db } from "../../firebase.js";
 import { collection, onSnapshot } from "firebase/firestore";
@@ -9,80 +9,163 @@ export default function Prices() {
   const nav = useNavigate();
   const [services, setServices] = useState([]);
   const [search, setSearch] = useState("");
+  const [sortBy, setSortBy] = useState("priceLow");
+  const [duration, setDuration] = useState("All");
 
   useEffect(() => {
     const colRef = collection(db, "services");
     const unsubscribe = onSnapshot(colRef, snapshot => {
-      const data = snapshot.docs.map(d => ({ id: d.id, ...d.data(), plans: d.data().plans || [] }));
+      const data = snapshot.docs.map(d => ({
+        id: d.id,
+        ...d.data(),
+        plans: d.data().plans || []
+      }));
       setServices(data);
     });
     return () => unsubscribe();
   }, []);
 
+  // 🔥 Find Best Deal (highest profit %)
+  let bestDeal = { id: null, profit: 0 };
+
+  services.forEach(s => {
+    s.plans.forEach(p => {
+      if (p.costPrice && p.sellPrice) {
+        const profit = ((p.sellPrice - p.costPrice) / p.costPrice) * 100;
+        if (profit > bestDeal.profit) {
+          bestDeal = { id: `${s.id}-${p.label}`, profit };
+        }
+      }
+    });
+  });
+
   const filteredServices = services
     .map(s => {
-      const plans = s.plans || [];
-      if (s.name.toLowerCase().includes(search.toLowerCase())) return { ...s, plans };
-      const matchingPlans = plans.filter(p =>
+      let plans = [...s.plans];
+
+      // Search
+      plans = plans.filter(p =>
+        s.name.toLowerCase().includes(search.toLowerCase()) ||
         (p.label || "").toLowerCase().includes(search.toLowerCase())
       );
-      return { ...s, plans: matchingPlans };
+
+      // Duration filter
+      if (duration !== "All") {
+        plans = plans.filter(p => p.duration === duration);
+      }
+
+      // Sorting
+      if (sortBy === "priceLow") plans.sort((a, b) => (+a.sellPrice || 0) - (+b.sellPrice || 0));
+      if (sortBy === "priceHigh") plans.sort((a, b) => (+b.sellPrice || 0) - (+a.sellPrice || 0));
+      if (sortBy === "name") plans.sort((a, b) => (a.label || "").localeCompare(b.label || ""));
+
+      return { ...s, plans };
     })
-    .filter(s => (s.plans || []).length > 0 || s.name.toLowerCase().includes(search.toLowerCase()));
+    .filter(s => s.plans.length > 0);
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-950 via-slate-900 to-slate-950 p-6 sm:p-12 text-white relative">
-      
+    <div className="relative min-h-screen p-6 sm:p-10 text-white bg-[#070b1a]">
+
       <button
         onClick={() => nav("/admin")}
-        className="absolute top-6 right-6 bg-blue-600 hover:bg-blue-500 text-white p-3 rounded-full shadow-lg transition flex items-center justify-center"
-        title="Admin Panel"
+        className="absolute top-5 right-5 bg-gradient-to-r from-blue-600 to-purple-600 p-3 rounded-full shadow-xl"
       >
-        <FiUser size={24} />
+        <FiUser size={22} />
       </button>
 
-      <h1 className="text-4xl sm:text-5xl font-bold text-center mb-8 tracking-tight">
+      <h1 className="text-3xl sm:text-4xl font-extrabold text-center mb-8 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
         CedarsTech Subscriptions
       </h1>
 
-      {/* Search */}
-      <div className="max-w-3xl mx-auto mb-8 flex items-center bg-slate-900 px-4 py-2 rounded-xl shadow">
-        <FiSearch className="text-slate-400 mr-2" size={20} />
+      {/* Search + Filters */}
+      <div className="max-w-5xl mx-auto mb-8 grid sm:grid-cols-4 gap-3">
+
         <input
-          type="text"
-          placeholder="Search services or plans..."
-          className="flex-1 bg-transparent outline-none text-white"
+          placeholder="Search..."
+          className="bg-white/5 px-4 py-2 rounded-xl text-sm outline-none"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
+
+        <select
+          className="bg-white/5 px-3 py-2 rounded-xl text-sm outline-none"
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+        >
+          <option value="priceLow">Price: Low → High</option>
+          <option value="priceHigh">Price: High → Low</option>
+          <option value="name">Plan Name A → Z</option>
+        </select>
+
+        <select
+          className="bg-white/5 px-3 py-2 rounded-xl text-sm outline-none"
+          value={duration}
+          onChange={(e) => setDuration(e.target.value)}
+        >
+          <option value="All">All Durations</option>
+          <option value="Monthly">Monthly</option>
+          <option value="Yearly">Yearly</option>
+          <option value="Weekly">Weekly</option>
+        </select>
       </div>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-10">
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
         {filteredServices.map((s, idx) => (
           <motion.div
             key={s.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: idx * 0.1 }}
-            whileHover={{ scale: 1.03 }}
-            className="bg-slate-900 p-4 sm:p-6 rounded-3xl border border-slate-800 shadow-xl flex flex-col hover:shadow-2xl transition-all"
+            transition={{ delay: idx * 0.06 }}
+            whileHover={{ scale: 1.035 }}
+            className={`relative bg-white/5 backdrop-blur-xl p-4 rounded-2xl border shadow-xl ${
+              s.featured ? "border-yellow-400/40" : "border-white/10"
+            }`}
           >
-            <div className="text-5xl sm:text-6xl mb-4 text-center">{s.icon}</div>
-            <h2 className="text-2xl font-semibold mb-6 text-center">{s.name}</h2>
+            {s.featured && (
+              <div className="absolute -top-3 -right-3 bg-yellow-400 text-black px-3 py-1 text-xs rounded-full flex items-center gap-1 shadow">
+                <FiStar /> Featured
+              </div>
+            )}
+
+            <h2 className="text-lg font-bold mb-4 text-center">{s.name}</h2>
 
             <ul className="space-y-2">
-              {(s.plans || []).map((p, i) => (
-                <motion.li
-                  key={i}
-                  whileHover={{ scale: 1.02 }}
-                  className="flex justify-between items-center p-3 bg-slate-800/60 rounded-xl transition-all hover:bg-slate-700/70"
-                >
-                  <span className="text-lg">{p.label}</span>
-                  <span className="flex flex-col items-end">
-                    <span className="font-medium">{p.sellPrice || "-"}</span>
-                  </span>
-                </motion.li>
-              ))}
+              {s.plans.map((p, i) => {
+                const profitKey = `${s.id}-${p.label}`;
+                const isBestDeal = profitKey === bestDeal.id;
+
+                return (
+                  <motion.li
+                    key={i}
+                    whileHover={{ scale: 1.02 }}
+                    className="relative flex justify-between items-center px-3 py-2 bg-black/30 rounded-lg border border-white/5 text-sm"
+                  >
+                    <span>{p.label}</span>
+
+                    <div className="flex items-center gap-2">
+                        {isBestDeal && (
+                        <span className="text-xs bg-red-500/90 px-2 py-0.5 rounded-full">
+                          🔥 Best Deal
+                        </span>
+                      )}
+                      <span className="font-semibold text-purple-300">{p.sellPrice}$</span>
+
+                      
+
+                      <a
+                        href={`https://wa.me/96181090757?text=Hi%20I%20want%20to%20order%20${encodeURIComponent(
+                          s.name + " - " + p.label
+                        )}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-xs bg-green-500/90 px-2 py-1 rounded-full hover:bg-green-400 transition"
+                      >
+                        Order
+                      </a>
+                    </div>
+                  </motion.li>
+                );
+              })}
             </ul>
           </motion.div>
         ))}

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FiTrash2, FiPlus, FiLogOut, FiDownload, FiSearch,
-  FiChevronDown, FiChevronUp
+  FiChevronDown, FiChevronUp, FiMenu
 } from "react-icons/fi";
 import { db } from "../../firebase.js";
 import {
@@ -14,7 +14,10 @@ export default function Admin({ setIsAuthed }) {
   const nav = useNavigate();
   const [services, setServices] = useState([]);
   const [search, setSearch] = useState("");
-  const [expanded, setExpanded] = useState({});
+  const [expanded, setExpanded] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const durations = ["Monthly", "Yearly"];
 
   useEffect(() => {
     const colRef = collection(db, "services");
@@ -57,7 +60,13 @@ export default function Admin({ setIsAuthed }) {
   };
 
   const addPlan = async (service) => {
-    const newPlans = [...service.plans, { label: "", costPrice: "", sellPrice: "" }];
+    const newPlans = [...service.plans, {
+      label: "",
+      costPrice: "",
+      sellPrice: "",
+      duration: "Monthly",
+      features: false
+    }];
     await updateDoc(doc(db, "services", service.id), { plans: newPlans, updatedAt: serverTimestamp() });
   };
 
@@ -67,15 +76,21 @@ export default function Admin({ setIsAuthed }) {
     await updateDoc(doc(db, "services", service.id), { plans: newPlans, updatedAt: serverTimestamp() });
   };
 
+  const toggleFeature = async (serviceId, plans, index) => {
+    const updatedPlans = [...plans];
+    updatedPlans[index].features = !updatedPlans[index].features;
+    await updateDoc(doc(db, "services", serviceId), { plans: updatedPlans, updatedAt: serverTimestamp() });
+  };
+
   const exportToCSV = () => {
-    let csv = "Service,Plan,Cost,Sell,Profit,Profit%\n";
+    let csv = "Service,Plan,Duration,Cost,Sell,Profit,Profit%\n";
     services.forEach(s => {
       (s.plans || []).forEach(p => {
         const cost = +p.costPrice || 0;
         const sell = +p.sellPrice || 0;
         const profit = sell - cost;
         const pct = cost ? ((profit / cost) * 100).toFixed(1) : 0;
-        csv += `"${s.name}","${p.label}",${cost},${sell},${profit},${pct}%\n`;
+        csv += `"${s.name}","${p.label}","${p.duration || ""}",${cost},${sell},${profit},${pct}%\n`;
       });
     });
     const blob = new Blob([csv], { type: "text/csv" });
@@ -97,14 +112,24 @@ export default function Admin({ setIsAuthed }) {
     .filter(s => (s.plans || []).length > 0 || s.name.toLowerCase().includes(search.toLowerCase()) || s.name === "");
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-950 via-slate-900 to-slate-950 p-4 sm:p-10 text-white flex justify-center items-start">
-      <div className="w-full max-w-5xl flex flex-col gap-6">
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-center">CedarsTech Admin Panel</h1>
+    <div className="min-h-screen p-6 sm:p-10 text-white bg-[#070b1a]">
+      <div className="max-w-6xl mx-auto flex flex-col gap-6">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-center mb-6 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+          CedarsTech Admin Panel
+        </h1>
 
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sticky top-0 z-10 bg-opacity-90 p-2 sm:p-0 justify-center rounded-xl shadow">
-          <div className="flex flex-wrap gap-2 sm:gap-3 items-center w-full sm:w-auto">
-            <div className="flex items-center bg-slate-900 px-3 py-2 rounded-xl shadow flex-1 sm:flex-none">
-              <FiSearch className="text-slate-400 mr-2" size={20} />
+        {/* Top Menu */}
+        <div className="flex flex-col sm:flex-row justify-between gap-3 sticky top-0 z-20 bg-black/30 p-3 rounded-2xl backdrop-blur-md shadow-lg">
+          <div className="flex justify-between items-center sm:hidden">
+            <span className="font-semibold text-white">Menu</span>
+            <button onClick={() => setMenuOpen(!menuOpen)}>
+              <FiMenu size={24} />
+            </button>
+          </div>
+
+          <div className={`${menuOpen ? "flex" : "hidden"} sm:flex flex-wrap sm:flex-nowrap justify-center sm:justify-start gap-2`}>
+            <div className="flex items-center bg-white/5 px-3 py-2 rounded-xl shadow-inner flex-1 sm:flex-none">
+              <FiSearch className="text-white/60 mr-2" size={20} />
               <input
                 type="text"
                 placeholder="Search service or plan..."
@@ -114,27 +139,28 @@ export default function Admin({ setIsAuthed }) {
               />
             </div>
 
-            <button onClick={exportToCSV} className="flex items-center gap-2 bg-emerald-600 px-4 py-2 rounded-xl hover:bg-emerald-500 transition shadow">
+            <button onClick={exportToCSV} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-400 shadow hover:scale-105 transition">
               <FiDownload /> Export CSV
             </button>
 
-            <button onClick={addService} className="flex items-center gap-2 bg-blue-600 px-4 py-2 rounded-xl hover:bg-blue-500 transition shadow">
+            <button onClick={addService} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-400 shadow hover:scale-105 transition">
               <FiPlus /> Add Service
             </button>
 
-            <button onClick={viewPrices} className="flex items-center gap-2 bg-indigo-600 px-4 py-2 rounded-xl hover:bg-indigo-500 transition shadow">
+            <button onClick={viewPrices} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-400 shadow hover:scale-105 transition">
               View Prices
             </button>
 
-            <button onClick={logout} className="flex items-center gap-2 bg-red-600 px-4 py-2 rounded-xl hover:bg-red-500 transition shadow">
+            <button onClick={logout} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-red-600 to-red-400 shadow hover:scale-105 transition">
               <FiLogOut /> Logout
             </button>
           </div>
         </div>
 
-        <div className="flex flex-col gap-4">
+        {/* Services */}
+        <div className="flex flex-col gap-5">
           <AnimatePresence>
-            {filteredServices.map((s, i) => {
+            {filteredServices.map((s, idx) => {
               const totalProfit = (s.plans || []).reduce((acc, p) => {
                 const cost = +p.costPrice || 0;
                 const sell = +p.sellPrice || 0;
@@ -148,61 +174,72 @@ export default function Admin({ setIsAuthed }) {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
-                  className="bg-slate-900 p-4 sm:p-6 rounded-3xl border border-slate-800 shadow-lg hover:shadow-2xl transition flex flex-col"
+                  whileHover={{ scale: 1.03 }}
+                  className="relative bg-white/5 backdrop-blur-xl p-4 rounded-2xl border border-white/10 shadow-xl"
                 >
-                  <div className="flex justify-between items-center mb-4 gap-2 cursor-pointer" onClick={() => setExpanded(prev => ({ ...prev, [s.id]: !prev[s.id] }))}>
+                  <div className="flex justify-between items-center mb-4 gap-2 cursor-pointer" onClick={() => setExpanded(expanded === s.id ? null : s.id)}>
                     <input
-                      className="bg-slate-800 px-3 py-2 rounded w-full sm:w-auto flex-1 focus:ring-2 focus:ring-blue-500 outline-none"
+                      className="bg-white/10 px-3 py-2 rounded-lg outline-none focus:ring-2 focus:ring-purple-400 text-white w-full sm:w-auto"
                       value={s.name}
                       placeholder="Service name"
                       onChange={e => updateServiceField(s.id, "name", e.target.value)}
                     />
                     <div className="flex items-center gap-2">
-                      <input
-                        className="w-10 h-10 text-center rounded bg-slate-800 focus:ring-2 focus:ring-blue-500 outline-none"
-                        placeholder="Icon"
-                        value={s.icon}
-                        onChange={e => updateServiceField(s.id, "icon", e.target.value)}
-                      />
                       <button onClick={() => removeService(s.id)} className="text-red-400 hover:text-red-500">
                         <FiTrash2 size={22} />
                       </button>
-                      {expanded[s.id] ? <FiChevronUp size={24} /> : <FiChevronDown size={24} />}
+                      {expanded === s.id ? <FiChevronUp size={24} /> : <FiChevronDown size={24} />}
                     </div>
                   </div>
 
-                  {expanded[s.id] && (
-                    <div className="space-y-2 overflow-x-auto">
+                  {expanded === s.id && (
+                    <div className="space-y-2">
                       {(s.plans || []).map((p, pi) => {
                         const cost = +p.costPrice || 0;
                         const sell = +p.sellPrice || 0;
                         const profit = sell - cost;
-                        const profitPct = cost ? ((profit / cost) * 100).toFixed(1) : "0";
 
                         return (
-                          <motion.div key={pi} layout className="grid grid-cols-2 sm:grid-cols-6 gap-2 items-center bg-slate-800/50 p-2 rounded min-w-75">
+                          <motion.div
+                            key={pi}
+                            layout
+                            whileHover={{ scale: 1.02 }}
+                            className="grid grid-cols-2 sm:grid-cols-7 gap-2 items-center bg-black/30 p-2 rounded-lg border border-white/10"
+                          >
                             <input
-                              className="col-span-1 sm:col-span-2 bg-slate-800 px-2 py-1 rounded outline-none focus:ring-2 focus:ring-blue-500"
-                              placeholder="New Plan"
+                              className="col-span-1 sm:col-span-2 bg-white/10 px-2 py-1 rounded-lg outline-none focus:ring-2 focus:ring-purple-400 text-white"
+                              placeholder="Plan"
                               value={p.label}
                               onChange={e => updatePlanField(s.id, s.plans, pi, "label", e.target.value)}
                             />
                             <input
-                              className="bg-slate-800 px-2 py-1 rounded outline-none focus:ring-2 focus:ring-blue-500"
+                              className="bg-white/10 px-2 py-1 rounded-lg outline-none focus:ring-2 focus:ring-purple-400 text-white"
                               placeholder="Cost"
                               value={p.costPrice}
                               onChange={e => updatePlanField(s.id, s.plans, pi, "costPrice", e.target.value)}
                             />
                             <input
-                              className="bg-slate-800 px-2 py-1 rounded outline-none focus:ring-2 focus:ring-blue-500"
+                              className="bg-white/10 px-2 py-1 rounded-lg outline-none focus:ring-2 focus:ring-purple-400 text-white"
                               placeholder="Sell"
                               value={p.sellPrice}
                               onChange={e => updatePlanField(s.id, s.plans, pi, "sellPrice", e.target.value)}
                             />
+                            <select
+                              className="bg-white/10 px-2 py-1 rounded-lg outline-none focus:ring-2 focus:ring-purple-400 text-white"
+                              value={p.duration || "Monthly"}
+                              onChange={e => updatePlanField(s.id, s.plans, pi, "duration", e.target.value)}
+                            >
+                              {durations.map(d => <option key={d} value={d}>{d}</option>)}
+                            </select>
+                            <button
+                              onClick={() => toggleFeature(s.id, s.plans, pi)}
+                              className={`px-2 py-1 rounded-lg font-medium ${p.features ? "bg-emerald-500" : "bg-white/10"} hover:opacity-80`}
+                            >
+                              Feature
+                            </button>
                             <div className={`text-sm font-semibold ${profit >= 0 ? "text-green-400" : "text-red-400"}`}>
                               {profit >= 0 ? "+" : ""}{profit.toFixed(2)}
                             </div>
-                            <div className="text-xs text-slate-400">{profitPct}%</div>
                             <button onClick={() => removePlan(s, pi)} className="text-red-400 hover:text-red-500">
                               <FiTrash2 />
                             </button>
@@ -218,12 +255,12 @@ export default function Admin({ setIsAuthed }) {
                         <FiPlus /> Add Plan
                       </motion.button>
 
-                      <div className="mt-2 text-right font-semibold text-lg text-emerald-400">
+                      <div className="mt-2 text-right font-semibold text-lg text-purple-400 drop-shadow-lg">
                         Total Profit: {totalProfit.toFixed(2)}
                       </div>
 
                       {s.updatedAt && (
-                        <div className="text-right text-xs text-slate-400">
+                        <div className="text-right text-xs text-white/60">
                           Last Updated: {new Date(s.updatedAt.seconds * 1000).toLocaleString()}
                         </div>
                       )}
