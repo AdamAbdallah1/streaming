@@ -5,7 +5,7 @@ import { base } from 'framer-motion/client'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/cedarstech-pricelist/',
+  base: '/streaming/',
   plugins: [
     react(),
     tailwindcss(),
