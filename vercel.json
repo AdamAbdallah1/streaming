@@ -1,11 +1,3 @@
 {
-  "rewrites": [
-    {
-      "source": "/streaming/(.*)",
-      "destination": "/index.html",
-      "has": [
-        { "type": "host", "value": "streaming-seven-orcin.vercel.app" }
-      ]
-    }
-  ]
+  "cleanUrls": true
 }
