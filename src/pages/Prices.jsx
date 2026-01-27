@@ -25,16 +25,12 @@ export default function Prices() {
     return () => unsubscribe();
   }, []);
 
-  // 🔥 Find Best Deal (highest profit %)
   let bestDeal = { id: null, profit: 0 };
-
   services.forEach(s => {
     s.plans.forEach(p => {
       if (p.costPrice && p.sellPrice) {
         const profit = ((p.sellPrice - p.costPrice) / p.costPrice) * 100;
-        if (profit > bestDeal.profit) {
-          bestDeal = { id: `${s.id}-${p.label}`, profit };
-        }
+        if (profit > bestDeal.profit) bestDeal = { id: `${s.id}-${p.label}`, profit };
       }
     });
   });
@@ -42,30 +38,21 @@ export default function Prices() {
   const filteredServices = services
     .map(s => {
       let plans = [...s.plans];
-
-      // Search
-      plans = plans.filter(p =>
-        s.name.toLowerCase().includes(search.toLowerCase()) ||
-        (p.label || "").toLowerCase().includes(search.toLowerCase())
+      plans = plans.filter(
+        p =>
+          s.name.toLowerCase().includes(search.toLowerCase()) ||
+          (p.label || "").toLowerCase().includes(search.toLowerCase())
       );
-
-      // Duration filter
-      if (duration !== "All") {
-        plans = plans.filter(p => p.duration === duration);
-      }
-
-      // Sorting
+      if (duration !== "All") plans = plans.filter(p => p.duration === duration);
       if (sortBy === "priceLow") plans.sort((a, b) => (+a.sellPrice || 0) - (+b.sellPrice || 0));
       if (sortBy === "priceHigh") plans.sort((a, b) => (+b.sellPrice || 0) - (+a.sellPrice || 0));
       if (sortBy === "name") plans.sort((a, b) => (a.label || "").localeCompare(b.label || ""));
-
       return { ...s, plans };
     })
     .filter(s => s.plans.length > 0);
 
   return (
     <div className="relative min-h-screen p-6 sm:p-10 text-white bg-[#070b1a]">
-
       <button
         onClick={() => nav("/admin")}
         className="absolute top-5 right-5 bg-gradient-to-r from-blue-600 to-purple-600 p-3 rounded-full shadow-xl"
@@ -73,24 +60,22 @@ export default function Prices() {
         <FiUser size={22} />
       </button>
 
-      <h1 className="text-3xl sm:text-4xl font-extrabold text-center mb-8 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+      <h1 className="text-3xl sm:text-4xl font-extrabold text-center mb-8 bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent">
         CedarsTech Subscriptions
       </h1>
 
-      {/* Search + Filters */}
       <div className="max-w-5xl mx-auto mb-8 grid sm:grid-cols-4 gap-3">
-
         <input
           placeholder="Search..."
-          className="bg-white/5 px-4 py-2 rounded-xl text-sm outline-none"
+          className="bg-white/5 px-4 py-2 rounded-xl text-sm outline-none backdrop-blur-md"
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={e => setSearch(e.target.value)}
         />
 
         <select
-          className="bg-white/5 px-3 py-2 rounded-xl text-sm outline-none"
+          className="bg-white/5 px-3 py-2 rounded-xl text-sm outline-none backdrop-blur-md"
           value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
+          onChange={e => setSortBy(e.target.value)}
         >
           <option value="priceLow">Price: Low → High</option>
           <option value="priceHigh">Price: High → Low</option>
@@ -98,9 +83,9 @@ export default function Prices() {
         </select>
 
         <select
-          className="bg-white/5 px-3 py-2 rounded-xl text-sm outline-none"
+          className="bg-white/5 px-3 py-2 rounded-xl text-sm outline-none backdrop-blur-md"
           value={duration}
-          onChange={(e) => setDuration(e.target.value)}
+          onChange={e => setDuration(e.target.value)}
         >
           <option value="All">All Durations</option>
           <option value="Monthly">Monthly</option>
@@ -109,17 +94,15 @@ export default function Prices() {
         </select>
       </div>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
         {filteredServices.map((s, idx) => (
           <motion.div
             key={s.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: idx * 0.06 }}
-            whileHover={{ scale: 1.035 }}
-            className={`relative bg-white/5 backdrop-blur-xl p-4 rounded-2xl border shadow-xl ${
-              s.featured ? "border-yellow-400/40" : "border-white/10"
-            }`}
+            whileHover={{ scale: 1.03 }}
+            className={`relative bg-white/5 backdrop-blur-xl p-6 rounded-2xl border border-white/10 shadow-2xl`}
           >
             {s.featured && (
               <div className="absolute -top-3 -right-3 bg-yellow-400 text-black px-3 py-1 text-xs rounded-full flex items-center gap-1 shadow">
@@ -129,7 +112,7 @@ export default function Prices() {
 
             <h2 className="text-lg font-bold mb-4 text-center">{s.name}</h2>
 
-            <ul className="space-y-2">
+            <ul className="space-y-3">
               {s.plans.map((p, i) => {
                 const profitKey = `${s.id}-${p.label}`;
                 const isBestDeal = profitKey === bestDeal.id;
@@ -138,19 +121,17 @@ export default function Prices() {
                   <motion.li
                     key={i}
                     whileHover={{ scale: 1.02 }}
-                    className="relative flex justify-between items-center px-3 py-2 bg-black/30 rounded-lg border border-white/5 text-sm"
+                    className="relative flex flex-col sm:flex-row justify-between items-center px-3 py-2 bg-black/30 rounded-lg border border-white/5 text-sm gap-2"
                   >
-                    <span>{p.label}</span>
+                    <span className="font-medium">{p.label}</span>
 
-                    <div className="flex items-center gap-2">
-                        {isBestDeal && (
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {isBestDeal && (
                         <span className="text-xs bg-red-500/90 px-2 py-0.5 rounded-full">
                           🔥 Best Deal
                         </span>
                       )}
                       <span className="font-semibold text-purple-300">{p.sellPrice}$</span>
-
-                      
 
                       <a
                         href={`https://wa.me/96181090757?text=Hi%20I%20want%20to%20order%20${encodeURIComponent(
