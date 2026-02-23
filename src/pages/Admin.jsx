@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FiTrash2, FiPlus, FiLogOut, FiDownload, FiSearch,
-  FiChevronDown, FiChevronUp, FiEye, FiSettings, FiCheckCircle
+  FiChevronDown, FiChevronUp, FiEye, FiSettings
 } from "react-icons/fi";
 import { db } from "../../firebase.js";
 import {
@@ -19,11 +19,17 @@ export default function Admin({ setIsAuthed }) {
   const [expanded, setExpanded] = useState(null);
 
   const durations = ["Monthly", "Yearly"];
+  const categories = ["Streaming", "Productivity", "Entertainment", "Tools", "Other"]; // predefined categories
 
   useEffect(() => {
     const colRef = collection(db, "services");
     const unsubscribe = onSnapshot(colRef, snapshot => {
-      const data = snapshot.docs.map(d => ({ id: d.id, ...d.data(), plans: d.data().plans || [] }));
+      const data = snapshot.docs.map(d => ({
+        id: d.id,
+        ...d.data(),
+        plans: d.data().plans || [],
+        category: d.data().category || "Other"
+      }));
       setServices(data);
     });
     return () => unsubscribe();
@@ -39,6 +45,8 @@ export default function Admin({ setIsAuthed }) {
     await addDoc(collection(db, "services"), {
       name: "New Service",
       plans: [],
+      category: "Other",
+      imageUrl: "",
       updatedAt: serverTimestamp()
     });
   };
@@ -77,11 +85,11 @@ export default function Admin({ setIsAuthed }) {
   };
 
   const exportToCSV = () => {
-    let csv = "Service,Plan,Duration,Cost,Sell,Profit\n";
+    let csv = "Service,Category,Plan,Duration,Cost,Sell,Profit\n";
     services.forEach(s => {
       (s.plans || []).forEach(p => {
         const profit = (+p.sellPrice || 0) - (+p.costPrice || 0);
-        csv += `"${s.name}","${p.label}","${p.duration}",${p.costPrice},${p.sellPrice},${profit}\n`;
+        csv += `"${s.name}","${s.category || 'Other'}","${p.label}","${p.duration}",${p.costPrice},${p.sellPrice},${profit}\n`;
       });
     });
     const blob = new Blob([csv], { type: "text/csv" });
@@ -194,12 +202,25 @@ export default function Admin({ setIsAuthed }) {
                       exit={{ height: 0 }}
                       className="border-t border-white/5 p-4 md:p-5 bg-black/20"
                     >
+                      {/* Category Input */}
+                      <div className="mb-4">
+                        <label className="text-xs font-bold uppercase tracking-widest text-zinc-400">Category</label>
+                        <select
+                          className="w-full bg-transparent border-b border-zinc-600 py-1 text-xs font-bold uppercase outline-none"
+                          value={s.category || "Other"}
+                          onChange={(e) => updateServiceField(s.id, "category", e.target.value)}
+                        >
+                          {categories.map(c => <option key={c} value={c}>{c}</option>)}
+                        </select>
+                      </div>
+
+                      {/* Plans List */}
                       <div className="space-y-3">
                         {s.plans.map((p, pi) => {
                           const planProfit = (+p.sellPrice || 0) - (+p.costPrice || 0);
                           return (
-                            <div key={pi} className="grid grid-cols-1 md:grid-cols-6 gap-3 md:gap-4 p-4 bg-zinc-900/50 rounded-2xl border border-white/5 items-center">
-                              <div className="md:col-span-2 space-y-1">
+                            <div key={pi} className="grid grid-cols-1 md:grid-cols-5 gap-3 md:gap-4 p-4 bg-zinc-900/50 rounded-2xl border border-white/5 items-center">
+                              <div className="space-y-1">
                                 <label className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">Plan Name</label>
                                 <input
                                   className="w-full bg-transparent text-xs font-bold outline-none"
@@ -207,43 +228,39 @@ export default function Admin({ setIsAuthed }) {
                                   onChange={e => updatePlanField(s.id, s.plans, pi, "label", e.target.value)}
                                 />
                               </div>
-                              
-                              <div className="grid grid-cols-3 gap-3 md:col-span-3">
-                                <div className="space-y-1">
-                                  <label className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">Cost ($)</label>
-                                  <input
-                                    className="w-full bg-transparent text-xs font-bold outline-none text-red-400"
-                                    value={p.costPrice}
-                                    onChange={e => updatePlanField(s.id, s.plans, pi, "costPrice", e.target.value)}
-                                  />
-                                </div>
-                                <div className="space-y-1">
-                                  <label className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">Sell ($)</label>
-                                  <input
-                                    className="w-full bg-transparent text-xs font-bold outline-none text-emerald-400"
-                                    value={p.sellPrice}
-                                    onChange={e => updatePlanField(s.id, s.plans, pi, "sellPrice", e.target.value)}
-                                  />
-                                </div>
-                                <div className="space-y-1">
-                                  <label className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">Profit</label>
-                                  <div className={`text-xs font-bold ${planProfit >= 0 ? 'text-blue-400' : 'text-red-500'}`}>
-                                    ${planProfit.toFixed(2)}
-                                  </div>
+                              <div className="space-y-1">
+                                <label className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">Cost ($)</label>
+                                <input
+                                  className="w-full bg-transparent text-xs font-bold outline-none text-red-400"
+                                  value={p.costPrice}
+                                  onChange={e => updatePlanField(s.id, s.plans, pi, "costPrice", e.target.value)}
+                                />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">Sell ($)</label>
+                                <input
+                                  className="w-full bg-transparent text-xs font-bold outline-none text-emerald-400"
+                                  value={p.sellPrice}
+                                  onChange={e => updatePlanField(s.id, s.plans, pi, "sellPrice", e.target.value)}
+                                />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">Profit</label>
+                                <div className={`text-xs font-bold ${planProfit >= 0 ? 'text-blue-400' : 'text-red-500'}`}>
+                                  ${planProfit.toFixed(2)}
                                 </div>
                               </div>
-
-                              <div className="flex items-center justify-between md:justify-end gap-4 border-t md:border-t-0 border-white/5 pt-3 md:pt-0">
-                                  <select
-                                    className="bg-transparent text-[10px] font-black uppercase outline-none cursor-pointer text-zinc-400"
-                                    value={p.duration}
-                                    onChange={e => updatePlanField(s.id, s.plans, pi, "duration", e.target.value)}
-                                  >
-                                    {durations.map(d => <option key={d} value={d} className="bg-zinc-900">{d}</option>)}
-                                  </select>
-                                  <button onClick={() => removePlan(s, pi)} className="text-zinc-600 hover:text-red-500 transition-colors">
-                                    <FiTrash2 size={14} />
-                                  </button>
+                              <div className="space-y-1 flex flex-col justify-between">
+                                <select
+                                  className="bg-transparent text-[10px] font-black uppercase outline-none cursor-pointer text-zinc-400"
+                                  value={p.duration}
+                                  onChange={e => updatePlanField(s.id, s.plans, pi, "duration", e.target.value)}
+                                >
+                                  {durations.map(d => <option key={d} value={d} className="bg-zinc-900">{d}</option>)}
+                                </select>
+                                <button onClick={() => removePlan(s, pi)} className="text-zinc-600 hover:text-red-500 transition-colors mt-1">
+                                  <FiTrash2 size={14} />
+                                </button>
                               </div>
                             </div>
                           );

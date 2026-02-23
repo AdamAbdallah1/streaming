@@ -2,9 +2,8 @@ import { useEffect, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   FiShoppingBag, FiSearch, FiUser, FiZap, FiSun, FiMoon, 
-  FiArrowUpRight, FiFilter, FiInfo, FiX, FiCheckCircle, FiClock 
+  FiArrowUpRight, FiFilter, FiInfo, FiX, FiClock 
 } from "react-icons/fi";
-import { HiOutlineSparkles } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
 import { db } from "../../firebase.js";
 import { collection, onSnapshot } from "firebase/firestore";
@@ -19,22 +18,27 @@ export default function Prices() {
   const [sortBy, setSortBy] = useState("priceLow");
   const [duration, setDuration] = useState("All");
   const [category, setCategory] = useState("All");
+  const [categories, setCategories] = useState(["All"]);
   const [darkMode, setDarkMode] = useState(true);
   const [showPayment, setShowPayment] = useState(false);
-  
-  // New Features State
-  const [currency, setCurrency] = useState("USD"); // USD or LBP
+  const [currency, setCurrency] = useState("USD");
   const [recentOrder, setRecentOrder] = useState(null);
-  const lbpRate = 89500; 
+  const lbpRate = 89500;
 
   useEffect(() => {
     const colRef = collection(db, "services");
     const unsubscribe = onSnapshot(colRef, (snapshot) => {
-      setServices(snapshot.docs.map(d => ({ 
-        id: d.id, 
-        ...d.data(), 
-        plans: d.data().plans || [] 
-      })));
+      const fetched = snapshot.docs.map(d => ({
+        id: d.id,
+        ...d.data(),
+        plans: d.data().plans || [],
+        category: d.data().category || "Other"
+      }));
+      setServices(fetched);
+
+      // Collect unique categories dynamically
+      const uniqueCats = Array.from(new Set(fetched.map(s => s.category || "Other")));
+      setCategories(["All", ...uniqueCats]);
     });
 
     // Floating Orders Logic
@@ -78,9 +82,9 @@ export default function Prices() {
         s.name.toLowerCase().includes(search.toLowerCase()) || 
         (p.label || "").toLowerCase().includes(search.toLowerCase())
       );
-      
+
       if (duration !== "All") plans = plans.filter(p => p.duration === duration);
-      
+
       plans.sort((a, b) => {
         if (sortBy === "priceLow") return (+a.sellPrice || 0) - (+b.sellPrice || 0);
         if (sortBy === "priceHigh") return (+b.sellPrice || 0) - (+a.sellPrice || 0);
@@ -165,13 +169,7 @@ export default function Prices() {
           </div>
 
           <div className="flex items-center gap-1 md:gap-2">
-            {/* Currency Toggle */}
-            <button 
-              onClick={() => setCurrency(currency === "USD" ? "LBP" : "USD")}
-              className={`px-3 py-1.5 rounded-lg text-[9px] font-black border transition-all ${darkMode ? 'border-white/10 hover:bg-white/5' : 'border-zinc-200 hover:bg-zinc-50'}`}
-            >
-              {currency}
-            </button>
+            <button onClick={() => setCurrency(currency === "USD" ? "LBP" : "USD")} className={`px-3 py-1.5 rounded-lg text-[9px] font-black border transition-all ${darkMode ? 'border-white/10 hover:bg-white/5' : 'border-zinc-200 hover:bg-zinc-50'}`}>{currency}</button>
             <button onClick={() => setShowPayment(true)} className="p-2 md:p-2.5 rounded-xl hover:bg-zinc-500/10 transition-all text-inherit"><FiInfo size={18} /></button>
             <button onClick={() => setDarkMode(!darkMode)} className="p-2 md:p-2.5 rounded-xl hover:bg-zinc-500/10 transition-all text-inherit">{darkMode ? <FiSun size={18} /> : <FiMoon size={18} />}</button>
             <button onClick={() => nav("/login")} className="p-2 md:p-2.5 rounded-xl border border-transparent hover:border-zinc-500/20 hover:bg-zinc-500/5 transition-all text-inherit"><FiUser size={18} /></button>
@@ -181,26 +179,7 @@ export default function Prices() {
 
       <main className="max-w-6xl mx-auto px-4 pt-28 md:pt-32 pb-20">
         
-        {/* Market Trend Indicator */}
-        <div className="flex items-center gap-2 mb-6 ml-1 opacity-60">
-          <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-500/10 text-emerald-500">
-            <FiClock size={10} />
-            <span className="text-[8px] font-black uppercase tracking-widest">Market Live: Prices Synced</span>
-          </div>
-          <span className="text-[8px] font-bold uppercase tracking-tighter">Rate: 1$ = {lbpRate.toLocaleString()} L.L.</span>
-        </div>
-
-        <div className="relative mb-10 md:mb-14 ml-1">
-          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="absolute -top-16 left-0 w-32 h-32 md:w-48 md:h-48 bg-blue-600/10 blur-[80px] md:blur-[100px] rounded-full pointer-events-none" />
-          <motion.h1 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-3xl md:text-6xl font-black tracking-tighter mb-4 leading-[1.1]">
-            Digital <br className="block md:hidden" />
-            <span className="bg-gradient-to-r from-blue-500 to-indigo-400 bg-clip-text text-transparent">Marketplace</span>
-          </motion.h1>
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className={`text-xs md:text-lg ${darkMode ? 'text-zinc-500' : 'text-zinc-400'} font-medium max-w-xl`}>
-            Premium subscriptions for the Lebanese tech ecosystem. Instantly delivered, professionally managed.
-          </motion.p>
-        </div>
-
+        {/* Filters */}
         <div className="flex flex-col lg:flex-row gap-4 mb-8 md:mb-12">
           <div className={`relative flex-grow lg:max-w-md ${t.glass} rounded-2xl border ${darkMode ? 'border-white/10' : 'border-zinc-200'}`}>
             <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
@@ -208,11 +187,20 @@ export default function Prices() {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3">
+            {/* Duration Filter */}
             <div className={`flex items-center gap-1 p-1.5 rounded-2xl border ${darkMode ? 'border-white/10' : 'border-zinc-200'} ${t.glass}`}>
               {['All', 'Monthly', 'Yearly'].map((d) => (
                 <button key={d} onClick={() => setDuration(d)} className={`flex-1 sm:flex-none px-4 md:px-6 py-2.5 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all ${duration === d ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-zinc-500/10'}`}>{d}</button>
               ))}
             </div>
+
+            {/* Category Filter */}
+            <div className={`flex items-center gap-1 p-1.5 rounded-2xl border ${darkMode ? 'border-white/10' : 'border-zinc-200'} ${t.glass}`}>
+              {categories.map((c) => (
+                <button key={c} onClick={() => setCategory(c)} className={`flex-1 sm:flex-none px-4 md:px-6 py-2.5 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all ${category === c ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-zinc-500/10'}`}>{c}</button>
+              ))}
+            </div>
+
             <select className={`px-4 py-3 rounded-2xl text-[9px] md:text-[10px] font-black uppercase border bg-transparent ${darkMode ? 'border-white/10' : 'border-zinc-200'}`} value={sortBy} onChange={e => setSortBy(e.target.value)}>
               <option value="priceLow" className={darkMode ? "bg-black" : "bg-white"}>Sort: Lowest</option>
               <option value="priceHigh" className={darkMode ? "bg-black" : "bg-white"}>Sort: Highest</option>
@@ -220,6 +208,7 @@ export default function Prices() {
           </div>
         </div>
 
+        {/* Services Grid */}
         <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <AnimatePresence mode="popLayout">
             {processedServices.filtered.map((s) => (
