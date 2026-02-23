@@ -6,7 +6,6 @@ import { useNavigate } from "react-router-dom";
 import { db } from "../../firebase.js";
 import { collection, onSnapshot } from "firebase/firestore";
 
-// Assets
 import WhiteLogo from '../assets/logo-white.png';
 import BlackLogo from '../assets/logo-black.png';
 
@@ -75,7 +74,6 @@ export default function Prices() {
   return (
     <div className={`min-h-screen transition-all duration-500 ${t.bg} ${t.text} antialiased selection:bg-blue-500/30 font-sans`}>
       
-      {/* Navbar */}
       <nav className={`fixed top-0 w-full z-50 border-b ${darkMode ? 'border-white/5' : 'border-zinc-200'} ${t.glass}`}>
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <div 
@@ -113,7 +111,6 @@ export default function Prices() {
 
       <main className="max-w-6xl mx-auto px-4 pt-32 pb-20">
         
-        {/* Hero Section (Larger) */}
         <div className="relative mb-14 ml-1">
           <motion.div 
             initial={{ opacity: 0, x: -20 }}
@@ -137,7 +134,6 @@ export default function Prices() {
           </motion.p>
         </div>
 
-        {/* Search & Filters (Larger) */}
         <div className="flex flex-col lg:flex-row gap-4 mb-12">
           <div className={`relative flex-grow lg:max-w-md ${t.glass} rounded-2xl border ${darkMode ? 'border-white/10' : 'border-zinc-200'} shadow-xl shadow-black/5`}>
             <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={20} />
@@ -172,7 +168,6 @@ export default function Prices() {
           </div>
         </div>
 
-        {/* Price Grid (Surgical Size) */}
         <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <AnimatePresence mode="popLayout">
             {processedServices.filtered.map((s) => (

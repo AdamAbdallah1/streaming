@@ -85,7 +85,6 @@ export default function Login({ setIsAuthed }) {
               </div>
             </div>
 
-            {/* Compact Remember Toggle */}
             <div className="flex items-center justify-between px-1">
               <label className="flex items-center gap-2 cursor-pointer group">
                 <input
@@ -116,7 +115,6 @@ export default function Login({ setIsAuthed }) {
           </div>
         </div>
 
-        {/* Back Link - Minimal */}
         <button
           onClick={() => nav("/prices")}
           className="mt-8 flex items-center justify-center gap-2 w-full text-[9px] font-bold uppercase tracking-[0.2em] text-zinc-600 hover:text-zinc-400 transition-colors"
@@ -126,7 +124,6 @@ export default function Login({ setIsAuthed }) {
         </button>
       </motion.div>
 
-      {/* Subtle Bottom Branding */}
       <div className="absolute bottom-10 opacity-10 text-[8px] font-bold uppercase tracking-[0.4em]">
         © 2026 Cedars Tech Lebanon
       </div>
