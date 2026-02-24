@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FiTrash2, FiPlus, FiLogOut, FiDownload, FiSearch,
-  FiChevronDown, FiChevronUp, FiEye, FiSettings, FiPackage, FiSlash, FiPercent
+  FiChevronDown, FiChevronUp, FiEye, FiSettings, FiPackage, FiPercent, FiDatabase, FiInfo
 } from "react-icons/fi";
 import { db } from "../../firebase.js";
 import {
@@ -18,8 +18,8 @@ export default function Admin({ setIsAuthed }) {
   const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState(null);
 
-  const durations = ["Monthly", "Yearly"];
-  const planTypes = ["Full Account", "1 User", "Private", "Shared"];
+  const durations = ["Instant", "1-24 Hours", "Monthly", "Yearly"];
+  const planTypes = ["Full Account", "1 User", "Private", "Shared", "Coins", "Top-Up"];
   const categories = ["Streaming", "Productivity", "Entertainment", "Tools", "Games", "Gift Cards", "Other"];
 
   useEffect(() => {
@@ -29,7 +29,8 @@ export default function Admin({ setIsAuthed }) {
         id: d.id,
         ...d.data(),
         plans: d.data().plans || [],
-        category: d.data().category || "Other"
+        category: d.data().category || "Other",
+        serviceNote: d.data().serviceNote || ""
       }));
       setServices(data);
     });
@@ -47,6 +48,7 @@ export default function Admin({ setIsAuthed }) {
       name: "New Service",
       plans: [],
       category: "Other",
+      serviceNote: "",
       imageUrl: "",
       updatedAt: serverTimestamp()
     });
@@ -73,11 +75,10 @@ export default function Admin({ setIsAuthed }) {
       label: "New Plan",
       costPrice: "0",
       sellPrice: "0",
-      discount: "0", // NEW: Default discount field
-      duration: "Monthly",
-      type: "Full Account",
-      inStock: true,
-      features: false
+      discount: "0",
+      duration: "Instant",
+      type: "Coins",
+      inStock: true
     }];
     await updateDoc(doc(db, "services", service.id), { plans: newPlans, updatedAt: serverTimestamp() });
   };
@@ -182,7 +183,7 @@ export default function Admin({ setIsAuthed }) {
                       onChange={e => updateServiceField(s.id, "name", e.target.value)}
                     />
                     <span className="text-[8px] md:text-[10px] font-bold text-zinc-600 uppercase tracking-widest bg-white/5 px-2 py-1 rounded-md">
-                      {s.plans.length} Plans
+                      {s.plans.length} Items
                     </span>
                   </div>
                   
@@ -207,25 +208,41 @@ export default function Admin({ setIsAuthed }) {
                       exit={{ height: 0 }}
                       className="border-t border-white/5 p-4 md:p-5 bg-black/20"
                     >
-                      <div className="mb-4 text-left">
-                        <label className="text-xs font-bold uppercase tracking-widest text-zinc-400">Category</label>
-                        <select
-                          className="w-full bg-transparent border-b border-zinc-600 py-1 text-xs font-bold uppercase outline-none"
-                          value={s.category || "Other"}
-                          onChange={(e) => updateServiceField(s.id, "category", e.target.value)}
-                        >
-                          {categories.map(c => <option key={c} value={c} className="bg-zinc-900">{c}</option>)}
-                        </select>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Category</label>
+                          <select
+                            className="w-full bg-zinc-900/50 border border-white/5 rounded-xl py-2 px-3 text-xs font-bold uppercase outline-none focus:border-blue-500"
+                            value={s.category || "Other"}
+                            onChange={(e) => updateServiceField(s.id, "category", e.target.value)}
+                          >
+                            {categories.map(c => <option key={c} value={c} className="bg-zinc-900">{c}</option>)}
+                          </select>
+                        </div>
+                        
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-amber-500 flex items-center gap-1">
+                            <FiInfo size={10}/> Service Note (Visible under Buy Now)
+                          </label>
+                          <input
+                            className="w-full bg-zinc-900/50 border border-white/5 rounded-xl py-2 px-3 text-xs font-bold outline-none focus:border-amber-500/50 transition-all placeholder:text-zinc-700"
+                            placeholder="e.g. Instant via Player ID or Only for US region"
+                            value={s.serviceNote || ""}
+                            onChange={(e) => updateServiceField(s.id, "serviceNote", e.target.value)}
+                          />
+                        </div>
                       </div>
 
                       <div className="space-y-3">
                         {s.plans.map((p, pi) => {
                           const planProfit = (+p.sellPrice || 0) - (+p.discount || 0) - (+p.costPrice || 0);
                           const isStock = p.inStock !== false;
+                          const isCoin = p.type === "Coins" || p.type === "Top-Up";
+
                           return (
-                            <div key={pi} className="grid grid-cols-1 md:grid-cols-8 gap-3 md:gap-4 p-4 bg-zinc-900/50 rounded-2xl border border-white/5 items-center">
+                            <div key={pi} className={`grid grid-cols-1 md:grid-cols-8 gap-3 md:gap-4 p-4 rounded-2xl border items-center transition-colors ${isCoin ? 'bg-amber-500/5 border-amber-500/10' : 'bg-zinc-900/50 border-white/5'}`}>
                               <div className="space-y-1">
-                                <label className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">Plan Name</label>
+                                <label className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">{isCoin ? 'Units' : 'Plan Name'}</label>
                                 <input
                                   className="w-full bg-transparent text-xs font-bold outline-none"
                                   value={p.label}
@@ -233,7 +250,9 @@ export default function Admin({ setIsAuthed }) {
                                 />
                               </div>
                               <div className="space-y-1">
-                                <label className="text-[8px] font-black text-blue-500 uppercase tracking-widest">Type</label>
+                                <label className={`text-[8px] font-black uppercase tracking-widest flex items-center gap-1 ${isCoin ? 'text-amber-500' : 'text-blue-500'}`}>
+                                  {isCoin ? <FiDatabase size={8}/> : <FiPackage size={8}/>} Type
+                                </label>
                                 <select
                                   className="w-full bg-transparent text-xs font-bold outline-none uppercase"
                                   value={p.type || "Full Account"}
@@ -259,7 +278,6 @@ export default function Admin({ setIsAuthed }) {
                                 />
                               </div>
 
-                              {/* DISCOUNT FIELD */}
                               <div className="space-y-1 bg-amber-500/5 p-1 rounded-lg border border-amber-500/10">
                                 <label className="text-[8px] font-black text-amber-500 uppercase tracking-widest flex items-center gap-1">
                                   <FiPercent size={8}/> Discount
@@ -277,7 +295,7 @@ export default function Admin({ setIsAuthed }) {
                                   ${planProfit.toFixed(2)}
                                 </div>
                               </div>
-                              {/* STOCK TOGGLE FIELD */}
+
                               <div className="space-y-1">
                                 <label className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">Stock</label>
                                 <button 
@@ -285,7 +303,7 @@ export default function Admin({ setIsAuthed }) {
                                   className={`flex items-center gap-1.5 px-2 py-1 rounded-lg border transition-all text-[9px] font-bold uppercase ${isStock ? 'border-emerald-500/20 text-emerald-500 bg-emerald-500/5' : 'border-red-500/20 text-red-500 bg-red-500/5'}`}
                                 >
                                   <div className={`w-1.5 h-1.5 rounded-full ${isStock ? 'bg-emerald-500' : 'bg-red-500'}`} />
-                                  {isStock ? 'In Stock' : 'Sold Out'}
+                                  {isStock ? 'In Stock' : 'Out'}
                                 </button>
                               </div>
                               <div className="space-y-1 flex flex-col justify-between">
@@ -310,7 +328,7 @@ export default function Admin({ setIsAuthed }) {
                           onClick={() => addPlan(s)}
                           className="w-full md:w-auto flex items-center justify-center gap-2 py-3 px-4 md:px-0 md:py-0 text-[10px] font-black uppercase tracking-widest text-blue-500 hover:text-blue-400 transition-colors bg-white/5 md:bg-transparent rounded-xl md:rounded-none"
                         >
-                          <FiPlus /> Add Plan Options
+                          <FiPlus /> Add Item / Pack
                         </button>
                         
                         <div className="w-full md:w-auto flex items-center justify-between md:justify-end gap-3 bg-zinc-900 px-4 py-3 rounded-xl border border-white/5">
@@ -337,7 +355,7 @@ export default function Admin({ setIsAuthed }) {
       </main>
 
       <footer className="mt-20 border-t border-white/5 py-10 opacity-30 text-center px-4">
-        <p className="text-[8px] md:text-[9px] font-black uppercase tracking-[0.3em] md:tracking-[0.5em]">Cedars Tech Admin Framework v2.0 • Ace 2026</p>
+        <p className="text-[8px] md:text-[9px] font-black uppercase tracking-[0.3em] md:tracking-[0.5em]">Cedars Tech Admin Framework v2.1 • Ace 2026</p>
       </footer>
     </div>
   );
