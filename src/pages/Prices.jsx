@@ -1,10 +1,11 @@
 import { useEffect, useState, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  FiShoppingBag, FiSearch, FiUser, FiZap, FiSun, FiMoon, 
+  FiShoppingBag, FiSearch, FiUser, FiZap, FiSun, FiMoon, FiSend,
   FiArrowUpRight, FiFilter, FiInfo, FiX, FiClock, FiActivity, FiCheckCircle, FiChevronLeft,
   FiCopy, FiShare2, FiSlash, FiMessageSquare, FiTag, FiStar, FiTrendingUp, FiBox, FiSmartphone, FiMail,
-  FiShield, FiLock, FiHeadphones, FiPlay, FiCpu, FiGlobe, FiLayers, FiPlus, FiPlusCircle, FiRefreshCw
+  FiShield, FiLock, FiHeadphones, FiPlay, FiCpu, FiGlobe, FiLayers, FiPlus, FiPlusCircle, FiRefreshCw,
+  FiCreditCard, FiSmartphone as FiWhish // Using icons for payment
 } from "react-icons/fi";
 import { useNavigate, useLocation } from "react-router-dom";
 import { db } from "../../firebase.js";
@@ -32,6 +33,25 @@ export default function Prices() {
   const [category, setCategory] = useState("All");
   const [categories, setCategories] = useState(["All"]);
   
+  // --- HEADER SCROLL LOGIC ---
+  const [showHeader, setShowHeader] = useState(true);
+  const lastScrollY = useRef(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
+        setShowHeader(false);
+      } else {
+        setShowHeader(true);
+      }
+      lastScrollY.current = currentScrollY;
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+  
   // --- THEME PERSISTENCE ---
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem("theme");
@@ -46,7 +66,7 @@ export default function Prices() {
   const [activeTooltip, setActiveTooltip] = useState(null); 
   const [onlyInStock, setOnlyInStock] = useState(false);
   const [onlyBestDeals, setOnlyBestDeals] = useState(false);
-  const [showFavorites, setShowFavorites] = useState(false); // New Filter state
+  const [showFavorites, setShowFavorites] = useState(false); 
 
   const [showCheckout, setShowCheckout] = useState(false);
   const [pendingOrder, setPendingOrder] = useState(null);
@@ -67,30 +87,28 @@ export default function Prices() {
   });
 
   const lastInteractionTime = useRef(Date.now());
-
   const lbpRate = 89500;
 
   const typeDescriptions = {
-    "Full Account": ["Full account access", "Change password", "No interruptions", "Works on all devices"],
-    "1 User": ["Private Profile", "Shared Login", "Do not change password", "4K Ultra HD"],
-    "Private": ["Exclusive access", "Customized to your email", "Warranty included", "All regions"],
-    "Shared": ["Most affordable", "Standard support", "Quick delivery", "No interruptions"],
-    "Standard": ["Official activation", "Full duration", "Replacement guarantee", "Secure"],
-    "Coins": ["Official Top-up", "Safe & Secure", "Instant Delivery", "Region Global"],
+    "Full Account": ["Full account access", "Change password", "Works on all devices"],
+    "1 User": ["Private Profile", "Shared Login", "Do not change password"],
+    "Private": ["Exclusive access", "Customized to your email", "Warranty included"],
+    "Shared": ["Most affordable", "Standard support", "No interruptions"],
+    "Standard": ["Official activation", "Full duration", "Secure"],
+    "Coins": ["Official Top-up", "Safe & Secure", "Instant Delivery"],
   };
 
   useEffect(() => {
     localStorage.setItem("theme", JSON.stringify(darkMode));
   }, [darkMode]);
 
-  // Sync Favorites to LocalStorage
   useEffect(() => {
     localStorage.setItem("fav_assets", JSON.stringify(favorites));
   }, [favorites]);
 
   useEffect(() => {
     const timer = setInterval(() => {
-      if (selectedService && (Date.now() - lastInteractionTime.current > 15000)) {
+      if (selectedService && (Date.now() - lastInteractionTime.current > 100500)) {
         setShowHelp(true);
       }
     }, 5000);
@@ -110,6 +128,15 @@ export default function Prices() {
     return () => window.removeEventListener("click", handleClickOutside);
   }, [activeTooltip]);
 
+  const handleSetCategory = (cat) => {
+    setCategory(cat);
+    const params = new URLSearchParams(window.location.search);
+    if (cat === "All") params.delete("c");
+    else params.set("c", cat.toLowerCase());
+    const newUrl = `${window.location.pathname}${params.toString() ? '?' + params.toString() : ''}`;
+    window.history.pushState(null, '', newUrl);
+  };
+
   useEffect(() => {
     const colRef = collection(db, "services");
     const unsubscribe = onSnapshot(colRef, (snapshot) => {
@@ -125,6 +152,12 @@ export default function Prices() {
       setCategories(["All", ...uniqueCats]);
 
       const params = new URLSearchParams(window.location.search);
+      const urlCat = params.get("c");
+      if (urlCat) {
+        const matchingCat = uniqueCats.find(c => c.toLowerCase() === urlCat.toLowerCase());
+        if (matchingCat) setCategory(matchingCat);
+      }
+
       const serviceId = params.get("s");
       if (serviceId) {
         const found = fetched.find(s => 
@@ -149,14 +182,19 @@ export default function Prices() {
     setSelectedService(service);
     lastInteractionTime.current = Date.now();
     const slug = service.name.toLowerCase().replace(/\s+/g, '-');
-    const newUrl = `${window.location.pathname}?s=${slug}`;
+    const params = new URLSearchParams(window.location.search);
+    params.set("s", slug);
+    const newUrl = `${window.location.pathname}?${params.toString()}`;
     window.history.pushState({ path: newUrl }, '', newUrl);
   };
 
   const handleBack = () => {
     setSelectedService(null);
     setShowHelp(false);
-    window.history.replaceState(null, '', window.location.pathname);
+    const params = new URLSearchParams(window.location.search);
+    params.delete("s");
+    const newUrl = `${window.location.pathname}${params.toString() ? '?' + params.toString() : ''}`;
+    window.history.replaceState(null, '', newUrl);
   };
 
   const handleTypeChange = (type) => {
@@ -190,7 +228,6 @@ export default function Prices() {
     const finalPrice = (+plan.sellPrice || 0) - (+plan.discount || 0);
     const orderID = Math.floor(1000 + Math.random() * 9000);
     
-    // SAVE TO MEMORY
     const orderToSave = { plan, service, customerInfo };
     localStorage.setItem("lastOrderMemory", JSON.stringify(orderToSave));
     setLastOrder(orderToSave);
@@ -263,7 +300,12 @@ export default function Prices() {
   return (
     <div className={`min-h-screen transition-all duration-700 ${t.bg} ${t.text} antialiased selection:bg-blue-500/30 font-sans`}>
       
-      <nav className={`fixed top-0 w-full z-50 border-b ${darkMode ? 'border-white/[0.05]' : 'border-zinc-200'} ${t.glass} ${darkMode ? 'bg-black/20' : 'bg-white/70'}`}>
+      <motion.nav 
+        initial={{ y: 0 }}
+        animate={{ y: showHeader ? 0 : -100 }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+        className={`fixed top-0 w-full z-50 border-b ${darkMode ? 'border-white/[0.05]' : 'border-zinc-200'} ${t.glass} ${darkMode ? 'bg-black/20' : 'bg-white/70'}`}
+      >
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3 group cursor-pointer" onClick={() => {handleBack(); window.scrollTo({top:0, behavior:'smooth'})}}>
             <img src={darkMode ? WhiteLogo : BlackLogo} alt="Cedars Tech" className="w-10 h-10 object-contain transition-transform group-hover:scale-110" />
@@ -280,14 +322,13 @@ export default function Prices() {
             <button onClick={() => nav("/login")} className="px-4 py-2 rounded-xl bg-blue-600 text-white text-[9px] font-black uppercase tracking-widest shadow-lg shadow-blue-600/20">Account</button>
           </div>
         </div>
-      </nav>
+      </motion.nav>
 
       <main className="max-w-7xl mx-auto px-6 pt-28 pb-32">
         <AnimatePresence mode="wait">
           {!selectedService ? (
             <motion.div key="grid-view" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
               
-              {/* REORDER BUTTON (Memory Feature) */}
               <AnimatePresence>
                 {lastOrder && (
                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className={`mb-8 p-4 rounded-2xl border flex flex-col sm:flex-row items-center justify-between gap-4 ${darkMode ? 'bg-blue-500/10 border-blue-500/20' : 'bg-blue-50 border-blue-100'}`}>
@@ -303,7 +344,11 @@ export default function Prices() {
               <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div>
                   <h1 className="text-4xl md:text-6xl font-black tracking-tighter leading-none uppercase mb-4">
-                    Advanced <span className="text-blue-600">Packages.</span>
+                    {category === "All" ? (
+                      <>Advanced <span className="text-blue-600">Packages.</span></>
+                    ) : (
+                      <>{category}.</>
+                    )}
                   </h1>
                 </div>
 
@@ -326,19 +371,19 @@ export default function Prices() {
                 {categories.map((c) => {
                     const conf = categoryConfig[c] || categoryConfig["Other"];
                     return (
-                        <button key={c} onClick={() => setCategory(c)} className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all border ${category === c ? 'bg-blue-600 text-white border-blue-600 shadow-md' : (darkMode ? 'border-white/10 text-zinc-500 hover:border-white/30' : 'border-zinc-200 text-zinc-500 bg-white')}`}>
+                        <button key={c} onClick={() => handleSetCategory(c)} className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all border ${category === c ? 'bg-blue-600 text-white border-blue-600 shadow-md' : (darkMode ? 'border-white/10 text-zinc-500 hover:border-white/30' : 'border-zinc-200 text-zinc-500 bg-white')}`}>
                             {conf.icon} {c}
                         </button>
                     )
                 })}
               </div>
 
-              <motion.div layout className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-5 space-y-5">
+              <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                 {processedServices.filtered.map((s, idx) => (
                   <motion.div 
                     initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: idx * 0.03 }}
                     layout key={s.id} onClick={() => handleSelectService(s)}
-                    className={`break-inside-avoid cursor-pointer group p-5 rounded-3xl border ${t.card} relative overflow-hidden transition-all duration-500 hover:border-blue-500/30 hover:-translate-y-1 mb-5`}
+                    className={`cursor-pointer group p-5 rounded-3xl border ${t.card} relative overflow-hidden transition-all duration-500 hover:border-blue-500/30 hover:-translate-y-1`}
                   >
                     <div className="flex justify-between items-start mb-6">
                       <div className="flex flex-col gap-1">
@@ -346,7 +391,6 @@ export default function Prices() {
                         <h2 className="text-base font-black uppercase tracking-tight leading-none">{s.name}</h2>
                       </div>
                       
-                      {/* FAVORITE TOGGLE */}
                       <button 
                         onClick={(e) => toggleFavorite(e, s.id)}
                         className={`p-2 rounded-full transition-all ${favorites.includes(s.id) ? 'text-amber-500 scale-110' : 'text-zinc-500 opacity-30 hover:opacity-100'}`}
@@ -375,7 +419,7 @@ export default function Prices() {
                       onClick={(e) => toggleFavorite(e, selectedService.id)}
                       className={`p-4 rounded-2xl border transition-all ${favorites.includes(selectedService.id) ? 'bg-amber-500/10 border-amber-500/20 text-amber-500' : (darkMode ? 'bg-white/5 border-white/10 text-zinc-500' : 'bg-white border-zinc-200 text-zinc-400')}`}
                   >
-                      <FiStar size={24} fill={favorites.includes(selectedService.id) ? "currentColor" : "none"} />
+                      <FiStar size={15} fill={favorites.includes(selectedService.id) ? "currentColor" : "none"} />
                   </button>
                 </div>
                 
@@ -443,7 +487,6 @@ export default function Prices() {
                         )}
                       </div>
 
-                      {/* SERVICE NOTE ADDED HERE */}
                       {selectedService.serviceNote && (
                         <div className={`mt-2 p-3 rounded-xl border flex items-start gap-2 ${darkMode ? 'bg-amber-500/5 border-amber-500/10' : 'bg-amber-50 border-amber-100'}`}>
                           <FiInfo className="text-amber-500 shrink-0 mt-0.5" size={12} />
@@ -460,7 +503,6 @@ export default function Prices() {
         </AnimatePresence>
       </main>
 
-      {/* Bundle Drawer */}
       <AnimatePresence>
         {bundle.length > 0 && (
            <motion.div initial={{ y: 100 }} animate={{ y: 0 }} exit={{ y: 100 }} className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[150] w-[90%] max-w-lg">
@@ -489,22 +531,11 @@ export default function Prices() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {showHelp && (
-            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="fixed bottom-24 right-6 z-[200] max-w-[200px] p-4 bg-blue-600 rounded-2xl shadow-2xl">
-                <button onClick={() => setShowHelp(false)} className="absolute -top-2 -right-2 bg-white text-black rounded-full p-1"><FiX size={10}/></button>
-                <p className="text-[10px] font-black uppercase text-white mb-2">Need help choosing?</p>
-                <button onClick={() => window.open('https://wa.me/96181090757', '_blank')} className="w-full py-2 bg-black text-white text-[8px] font-black uppercase rounded-lg">Chat with Us</button>
-            </motion.div>
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
         {showCheckout && pendingOrder && (
           <div className="fixed inset-0 z-[210] flex items-center justify-center p-6">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowCheckout(false)} className="absolute inset-0 bg-black/90 backdrop-blur-xl" />
             <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className={`relative w-full max-w-md p-8 rounded-[2.5rem] border ${t.modal}`}>
                 <h3 className="text-2xl font-black mb-8 uppercase tracking-tight">Checkout</h3>
-                
                 <form onSubmit={finalizeOrder} className="space-y-4">
                     <input required type="email" placeholder="YOUR EMAIL" className={`w-full rounded-xl py-4 px-4 text-[10px] font-black uppercase outline-none focus:border-blue-500 border ${t.input}`} value={customerInfo.email} onChange={e => setCustomerInfo({...customerInfo, email: e.target.value})} />
                     <input required type="tel" placeholder="WHATSAPP NUMBER" className={`w-full rounded-xl py-4 px-4 text-[10px] font-black uppercase outline-none focus:border-blue-500 border ${t.input}`} value={customerInfo.phone} onChange={e => setCustomerInfo({...customerInfo, phone: e.target.value})} />
@@ -517,28 +548,42 @@ export default function Prices() {
         )}
       </AnimatePresence>
 
+      {/* FIXED: Added the Payment Modal below */}
       <AnimatePresence>
         {showPayment && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+          <div className="fixed inset-0 z-[250] flex items-center justify-center p-6">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowPayment(false)} className="absolute inset-0 bg-black/80 backdrop-blur-md" />
-            <motion.div initial={{ scale: 0.98, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className={`relative w-full max-w-sm p-8 rounded-[2rem] border ${t.modal}`}>
-              <h3 className="text-xl font-black mb-6 uppercase tracking-tight">Channels</h3>
-              <div className="space-y-3">
-                {[
-                  { name: "Whish Money", detail: "81 090 757", color: "text-blue-500", bg: darkMode ? "bg-blue-500/5" : "bg-blue-50" },
-                  { name: "OMT", detail: "Adam Abdallah", color: "text-orange-500", bg: darkMode ? "bg-orange-500/5" : "bg-orange-50" },
-                ].map((m, i) => (
-                  <div key={i} className={`p-4 rounded-xl border ${darkMode ? 'border-white/5' : 'border-zinc-100'} ${m.bg} flex justify-between items-center group`}>
-                    <div className="flex-1">
-                      <p className={`text-[9px] font-black uppercase tracking-widest ${m.color} mb-0.5`}>{m.name}</p>
-                      <p className={`text-xs font-bold ${darkMode ? 'text-white/80' : 'text-zinc-900'}`}>{m.detail}</p>
+            <motion.div initial={{ scale: 0.9, y: 20, opacity: 0 }} animate={{ scale: 1, y: 0, opacity: 1 }} exit={{ scale: 0.9, y: 20, opacity: 0 }} className={`relative w-full max-w-lg p-8 rounded-[2.5rem] border ${t.modal}`}>
+                <div className="flex justify-between items-center mb-8">
+                  <h3 className="text-2xl font-black uppercase tracking-tight">Payment Methods</h3>
+                  <button onClick={() => setShowPayment(false)} className="p-2 rounded-full hover:bg-white/10 transition-colors">
+                    <FiX size={20} />
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  {[
+                    { name: "Whish Money", detail: "Fastest local transfer", icon: <FiWhish className="text-blue-500"/> },
+                    { name: "OMT", detail: "Available everywhere in LB", icon: <FiSend className="text-orange-500"/> },
+                  ].map((method, idx) => (
+                    <div key={idx} className={`p-4 rounded-2xl border flex items-center justify-between ${darkMode ? 'bg-white/5 border-white/10' : 'bg-zinc-50 border-zinc-200'}`}>
+                      <div className="flex items-center gap-4">
+                        <div className={`p-3 rounded-xl ${darkMode ? 'bg-black/40' : 'bg-white shadow-sm'}`}>{method.icon}</div>
+                        <div>
+                          <p className="text-[11px] font-black uppercase">{method.name}</p>
+                          <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-tight">{method.detail}</p>
+                        </div>
+                      </div>
+                      <div className="px-3 py-1 bg-blue-600/10 text-blue-500 rounded-full text-[8px] font-black uppercase">Active</div>
                     </div>
-                    <button onClick={() => copyToClipboard(m.detail, i)} className={`p-2 rounded-lg transition-all ${copyStatus === i ? 'bg-emerald-500/20 text-emerald-500' : (darkMode ? 'bg-white/5 text-zinc-500 hover:text-white' : 'bg-white border border-zinc-200 text-zinc-400')}`}>
-                      {copyStatus === i ? <FiCheckCircle size={14} /> : <FiCopy size={14} />}
-                    </button>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+
+                <div className={`mt-8 p-4 rounded-2xl border border-dashed ${darkMode ? 'border-white/10' : 'border-zinc-200'}`}>
+                  <p className="text-[9px] font-bold text-zinc-500 text-center uppercase leading-relaxed">
+                    Once you place an order, our team will provide the payment details for your chosen method via WhatsApp.
+                  </p>
+                </div>
             </motion.div>
           </div>
         )}

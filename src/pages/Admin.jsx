@@ -222,7 +222,7 @@ export default function Admin({ setIsAuthed }) {
                         
                         <div className="space-y-1">
                           <label className="text-[10px] font-black uppercase tracking-widest text-amber-500 flex items-center gap-1">
-                            <FiInfo size={10}/> Service Note (Visible under Buy Now)
+                            <FiInfo size={10}/> Service Note
                           </label>
                           <input
                             className="w-full bg-zinc-900/50 border border-white/5 rounded-xl py-2 px-3 text-xs font-bold outline-none focus:border-amber-500/50 transition-all placeholder:text-zinc-700"
@@ -328,7 +328,7 @@ export default function Admin({ setIsAuthed }) {
                           onClick={() => addPlan(s)}
                           className="w-full md:w-auto flex items-center justify-center gap-2 py-3 px-4 md:px-0 md:py-0 text-[10px] font-black uppercase tracking-widest text-blue-500 hover:text-blue-400 transition-colors bg-white/5 md:bg-transparent rounded-xl md:rounded-none"
                         >
-                          <FiPlus /> Add Item / Pack
+                          <FiPlus /> Add Item
                         </button>
                         
                         <div className="w-full md:w-auto flex items-center justify-between md:justify-end gap-3 bg-zinc-900 px-4 py-3 rounded-xl border border-white/5">
