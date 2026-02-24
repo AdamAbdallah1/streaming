@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FiTrash2, FiPlus, FiLogOut, FiDownload, FiSearch,
-  FiChevronDown, FiChevronUp, FiEye, FiSettings, FiPackage, FiSlash
+  FiChevronDown, FiChevronUp, FiEye, FiSettings, FiPackage, FiSlash, FiPercent
 } from "react-icons/fi";
 import { db } from "../../firebase.js";
 import {
@@ -19,8 +19,8 @@ export default function Admin({ setIsAuthed }) {
   const [expanded, setExpanded] = useState(null);
 
   const durations = ["Monthly", "Yearly"];
-  const planTypes = ["Full Account", "1 User", "Private", "Shared"]; // Options for the new selector
-  const categories = ["Streaming", "Productivity", "Entertainment", "Tools", "Other"];
+  const planTypes = ["Full Account", "1 User", "Private", "Shared"];
+  const categories = ["Streaming", "Productivity", "Entertainment", "Tools", "Games", "Gift Cards", "Other"];
 
   useEffect(() => {
     const colRef = collection(db, "services");
@@ -73,9 +73,10 @@ export default function Admin({ setIsAuthed }) {
       label: "New Plan",
       costPrice: "0",
       sellPrice: "0",
+      discount: "0", // NEW: Default discount field
       duration: "Monthly",
-      type: "Full Account", // Default value for the new field
-      inStock: true, // Defaulting to In Stock
+      type: "Full Account",
+      inStock: true,
       features: false
     }];
     await updateDoc(doc(db, "services", service.id), { plans: newPlans, updatedAt: serverTimestamp() });
@@ -88,11 +89,12 @@ export default function Admin({ setIsAuthed }) {
   };
 
   const exportToCSV = () => {
-    let csv = "Service,Category,Plan,Type,Duration,Cost,Sell,Profit,Stock\n";
+    let csv = "Service,Category,Plan,Type,Duration,Cost,Sell,Discount,FinalPrice,Profit,Stock\n";
     services.forEach(s => {
       (s.plans || []).forEach(p => {
-        const profit = (+p.sellPrice || 0) - (+p.costPrice || 0);
-        csv += `"${s.name}","${s.category || 'Other'}","${p.label}","${p.type || 'N/A'}","${p.duration}",${p.costPrice},${p.sellPrice},${profit},${p.inStock !== false ? 'In Stock' : 'Out of Stock'}\n`;
+        const finalPrice = (+p.sellPrice || 0) - (+p.discount || 0);
+        const profit = finalPrice - (+p.costPrice || 0);
+        csv += `"${s.name}","${s.category || 'Other'}","${p.label}","${p.type || 'N/A'}","${p.duration}",${p.costPrice},${p.sellPrice},${p.discount || 0},${finalPrice},${profit},${p.inStock !== false ? 'In Stock' : 'Out of Stock'}\n`;
       });
     });
     const blob = new Blob([csv], { type: "text/csv" });
@@ -205,23 +207,23 @@ export default function Admin({ setIsAuthed }) {
                       exit={{ height: 0 }}
                       className="border-t border-white/5 p-4 md:p-5 bg-black/20"
                     >
-                      <div className="mb-4">
+                      <div className="mb-4 text-left">
                         <label className="text-xs font-bold uppercase tracking-widest text-zinc-400">Category</label>
                         <select
                           className="w-full bg-transparent border-b border-zinc-600 py-1 text-xs font-bold uppercase outline-none"
                           value={s.category || "Other"}
                           onChange={(e) => updateServiceField(s.id, "category", e.target.value)}
                         >
-                          {categories.map(c => <option key={c} value={c}>{c}</option>)}
+                          {categories.map(c => <option key={c} value={c} className="bg-zinc-900">{c}</option>)}
                         </select>
                       </div>
 
                       <div className="space-y-3">
                         {s.plans.map((p, pi) => {
-                          const planProfit = (+p.sellPrice || 0) - (+p.costPrice || 0);
+                          const planProfit = (+p.sellPrice || 0) - (+p.discount || 0) - (+p.costPrice || 0);
                           const isStock = p.inStock !== false;
                           return (
-                            <div key={pi} className="grid grid-cols-1 md:grid-cols-7 gap-3 md:gap-4 p-4 bg-zinc-900/50 rounded-2xl border border-white/5 items-center">
+                            <div key={pi} className="grid grid-cols-1 md:grid-cols-8 gap-3 md:gap-4 p-4 bg-zinc-900/50 rounded-2xl border border-white/5 items-center">
                               <div className="space-y-1">
                                 <label className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">Plan Name</label>
                                 <input
@@ -256,9 +258,22 @@ export default function Admin({ setIsAuthed }) {
                                   onChange={e => updatePlanField(s.id, s.plans, pi, "sellPrice", e.target.value)}
                                 />
                               </div>
+
+                              {/* DISCOUNT FIELD */}
+                              <div className="space-y-1 bg-amber-500/5 p-1 rounded-lg border border-amber-500/10">
+                                <label className="text-[8px] font-black text-amber-500 uppercase tracking-widest flex items-center gap-1">
+                                  <FiPercent size={8}/> Discount
+                                </label>
+                                <input
+                                  className="w-full bg-transparent text-xs font-black outline-none text-amber-500"
+                                  value={p.discount || "0"}
+                                  onChange={e => updatePlanField(s.id, s.plans, pi, "discount", e.target.value)}
+                                />
+                              </div>
+
                               <div className="space-y-1">
                                 <label className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">Profit</label>
-                                <div className={`text-xs font-bold ${planProfit >= 0 ? 'text-blue-400' : 'text-red-500'}`}>
+                                <div className={`text-xs font-black ${planProfit >= 0 ? 'text-blue-400' : 'text-red-500'}`}>
                                   ${planProfit.toFixed(2)}
                                 </div>
                               </div>
@@ -301,7 +316,7 @@ export default function Admin({ setIsAuthed }) {
                         <div className="w-full md:w-auto flex items-center justify-between md:justify-end gap-3 bg-zinc-900 px-4 py-3 rounded-xl border border-white/5">
                           <span className="text-[9px] md:text-[10px] font-black text-zinc-500 uppercase tracking-widest">Total Srv. Profit</span>
                           <span className="text-sm font-black text-emerald-400">
-                            ${(s.plans.reduce((acc, p) => acc + ((+p.sellPrice || 0) - (+p.costPrice || 0)), 0)).toFixed(2)}
+                            ${(s.plans.reduce((acc, p) => acc + ((+p.sellPrice || 0) - (+p.discount || 0) - (+p.costPrice || 0)), 0)).toFixed(2)}
                           </span>
                         </div>
                       </div>
