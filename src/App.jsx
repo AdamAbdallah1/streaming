@@ -3,6 +3,7 @@ import Prices from "./pages/Prices";
 import Login from "./pages/Login";
 import Admin from "./pages/Admin";
 import { useState } from "react";
+import StreamBackground from "./components/StreamBackground";
 
 export default function App() {
   const [isAuthed, setIsAuthed] = useState(
@@ -10,16 +11,18 @@ export default function App() {
   );
 
   return (
-    <Routes>
-      <Route path="/" element={<Navigate to="/prices" />} />
-      <Route path="/prices" element={<Prices />} />
-      <Route path="/login" element={<Login setIsAuthed={setIsAuthed} />} />
-      <Route
-        path="/admin"
-        element={
-          isAuthed ? <Admin setIsAuthed={setIsAuthed} /> : <Navigate to="/login" />
-        }
-      />
-    </Routes>
+    <>
+      <Routes>
+        <Route path="/" element={<Navigate to="/prices" />} />
+        <Route path="/prices" element={<Prices />} />
+        <Route path="/login" element={<Login setIsAuthed={setIsAuthed} />} />
+        <Route
+          path="/admin"
+          element={
+            isAuthed ? <Admin setIsAuthed={setIsAuthed} /> : <Navigate to="/login" />
+          }
+        />
+      </Routes>
+    </>
   );
 }

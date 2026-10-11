@@ -88,7 +88,7 @@ export default function Prices() {
 
   const lastInteractionTime = useRef(Date.now());
   const lbpRate = 89500;
-
+  
   const typeDescriptions = {
     "Full Account": ["Full account access", "Change password", "Works on all devices"],
     "1 User": ["Private Profile", "Shared Login", "Do not change password"],
@@ -299,7 +299,6 @@ DURATION: ${plan.duration}
 
   return (
     <div className={`min-h-screen transition-all duration-700 ${t.bg} ${t.text} antialiased selection:bg-blue-500/30 font-sans`}>
-      
       <motion.nav 
         initial={{ y: 0 }}
         animate={{ y: showHeader ? 0 : -100 }}
@@ -327,17 +326,17 @@ DURATION: ${plan.duration}
       <main className="max-w-7xl mx-auto px-6 pt-28 pb-32">
         <AnimatePresence mode="wait">
           {!selectedService ? (
-            <motion.div key="grid-view" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+            <div key="grid-view" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
               
               <AnimatePresence>
                 {lastOrder && (
-                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className={`mb-8 p-4 rounded-2xl border flex flex-col sm:flex-row items-center justify-between gap-4 ${darkMode ? 'bg-blue-500/10 border-blue-500/20' : 'bg-blue-50 border-blue-100'}`}>
+                  <div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className={`mb-8 p-4 rounded-2xl border flex flex-col sm:flex-row items-center justify-between gap-4 ${darkMode ? 'bg-blue-500/10 border-blue-500/20' : 'bg-blue-50 border-blue-100'}`}>
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-blue-600 rounded-lg text-white"><FiRefreshCw size={14} className="animate-spin-slow" /></div>
                       <p className="text-[10px] font-black uppercase tracking-tight">Reorder your last purchase: <span className="text-blue-600">{lastOrder.service.name} ({lastOrder.plan.label})</span></p>
                     </div>
                     <button onClick={() => { setCustomerInfo(lastOrder.customerInfo); initiateOrder(lastOrder.plan, lastOrder.service); }} className="px-5 py-2 bg-blue-600 text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all">Quick Reorder</button>
-                  </motion.div>
+                  </div>
                 )}
               </AnimatePresence>
 
@@ -378,9 +377,9 @@ DURATION: ${plan.duration}
                 })}
               </div>
 
-              <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+              <div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                 {processedServices.filtered.map((s, idx) => (
-                  <motion.div 
+                  <div 
                     initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: idx * 0.03 }}
                     layout key={s.id} onClick={() => handleSelectService(s)}
                     className={`cursor-pointer group p-5 rounded-3xl border ${t.card} relative overflow-hidden transition-all duration-500 hover:border-blue-500/30 hover:-translate-y-1`}
@@ -402,12 +401,12 @@ DURATION: ${plan.duration}
                       View Plans & Options
                       <FiArrowUpRight size={14} className="opacity-20 group-hover:opacity-100 transition-all" />
                     </p>
-                  </motion.div>
+                  </div>
                 ))}
-              </motion.div>
-            </motion.div>
+              </div>
+            </div>
           ) : (
-            <motion.div key="detail-view" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+            <div key="detail-view" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
               <button onClick={handleBack} className="flex items-center gap-2 mb-8 text-[10px] font-black uppercase opacity-60 hover:opacity-100">
                 <FiChevronLeft size={16} /> Back to Assets
               </button>
@@ -498,14 +497,14 @@ DURATION: ${plan.duration}
                     </div>
                   )})}
               </div>
-            </motion.div>
+            </div>
           )}
         </AnimatePresence>
       </main>
 
       <AnimatePresence>
         {bundle.length > 0 && (
-           <motion.div initial={{ y: 100 }} animate={{ y: 0 }} exit={{ y: 100 }} className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[150] w-[90%] max-w-lg">
+           <div initial={{ y: 100 }} animate={{ y: 0 }} exit={{ y: 100 }} className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[150] w-[90%] max-w-lg">
                 <div className={`${darkMode ? 'bg-zinc-900' : 'bg-white'} border ${darkMode ? 'border-blue-500/30' : 'border-zinc-200 shadow-2xl'} p-4 rounded-3xl backdrop-blur-2xl`}>
                     <div className="flex justify-between items-center mb-4">
                         <span className="text-[10px] font-black uppercase">Your Bundle ({bundle.length})</span>
@@ -526,15 +525,15 @@ DURATION: ${plan.duration}
                         <button onClick={() => { setPendingOrder({ plan: { label: 'Bundle Order', sellPrice: bundleTotal, discount: 0 }, service: { name: 'Custom Bundle' } }); setShowCheckout(true); }} className="px-6 py-3 bg-blue-600 text-white rounded-xl text-[10px] font-black uppercase shadow-lg shadow-blue-600/20">Checkout</button>
                     </div>
                 </div>
-           </motion.div>
+           </div>
         )}
       </AnimatePresence>
 
       <AnimatePresence>
         {showCheckout && pendingOrder && (
           <div className="fixed inset-0 z-[210] flex items-center justify-center p-6">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowCheckout(false)} className="absolute inset-0 bg-black/90 backdrop-blur-xl" />
-            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className={`relative w-full max-w-md p-8 rounded-[2.5rem] border ${t.modal}`}>
+            <div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowCheckout(false)} className="absolute inset-0 bg-black/90 backdrop-blur-xl" />
+            <div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className={`relative w-full max-w-md p-8 rounded-[2.5rem] border ${t.modal}`}>
                 <h3 className="text-2xl font-black mb-8 uppercase tracking-tight">Checkout</h3>
                 <form onSubmit={finalizeOrder} className="space-y-4">
                     <input required type="email" placeholder="YOUR EMAIL" className={`w-full rounded-xl py-4 px-4 text-[10px] font-black uppercase outline-none focus:border-blue-500 border ${t.input}`} value={customerInfo.email} onChange={e => setCustomerInfo({...customerInfo, email: e.target.value})} />
@@ -543,7 +542,7 @@ DURATION: ${plan.duration}
                         Order via WhatsApp
                     </button>
                 </form>
-            </motion.div>
+            </div>
           </div>
         )}
       </AnimatePresence>
@@ -552,8 +551,8 @@ DURATION: ${plan.duration}
       <AnimatePresence>
         {showPayment && (
           <div className="fixed inset-0 z-[250] flex items-center justify-center p-6">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowPayment(false)} className="absolute inset-0 bg-black/80 backdrop-blur-md" />
-            <motion.div initial={{ scale: 0.9, y: 20, opacity: 0 }} animate={{ scale: 1, y: 0, opacity: 1 }} exit={{ scale: 0.9, y: 20, opacity: 0 }} className={`relative w-full max-w-lg p-8 rounded-[2.5rem] border ${t.modal}`}>
+            <div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowPayment(false)} className="absolute inset-0 bg-black/80 backdrop-blur-md" />
+            <div initial={{ scale: 0.9, y: 20, opacity: 0 }} animate={{ scale: 1, y: 0, opacity: 1 }} exit={{ scale: 0.9, y: 20, opacity: 0 }} className={`relative w-full max-w-lg p-8 rounded-[2.5rem] border ${t.modal}`}>
                 <div className="flex justify-between items-center mb-8">
                   <h3 className="text-2xl font-black uppercase tracking-tight">Payment Methods</h3>
                   <button onClick={() => setShowPayment(false)} className="p-2 rounded-full hover:bg-white/10 transition-colors">
@@ -608,7 +607,7 @@ DURATION: ${plan.duration}
                     Once you place an order, our team will provide the payment details for your chosen method via WhatsApp.
                   </p>
                 </div>
-            </motion.div>
+            </div>
           </div>
         )}
       </AnimatePresence>
