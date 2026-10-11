@@ -1,131 +1,139 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import { FiLock, FiEye, FiEyeOff, FiArrowLeft, FiUser, FiArrowRight } from "react-icons/fi";
+import { FiArrowLeft, FiArrowRight, FiEye, FiEyeOff, FiLock } from "react-icons/fi";
+import Logo from "../assets/logo-black.png";
+import Button from "../components/ui/Button";
+import { inputClasses } from "../lib/inputStyles";
+import { cn } from "../lib/cn";
 import { db } from "../../firebase.js";
 import { doc, getDoc } from "firebase/firestore";
-import Logo from '../assets/logo-white.png';
+import { STORAGE_KEYS } from "../lib/config";
 
 export default function Login({ setIsAuthed }) {
+  const nav = useNavigate();
   const [pass, setPass] = useState("");
   const [showPass, setShowPass] = useState(false);
   const [remember, setRemember] = useState(false);
   const [loading, setLoading] = useState(false);
-  const nav = useNavigate();
+  const [error, setError] = useState(null);
 
   const login = async () => {
     setLoading(true);
+    setError(null);
     try {
       const docRef = doc(db, "admin", "main");
       const docSnap = await getDoc(docRef);
 
       if (!docSnap.exists()) {
-        alert("Admin password not set!");
+        setError("Admin password is not configured.");
         return;
       }
 
-      const correctPass = docSnap.data().password;
-
-      if (pass === correctPass) {
-        if (remember) {
-          localStorage.setItem("cedars_admin_auth", "true");
-        } else {
-          sessionStorage.setItem("cedars_admin_auth", "true");
-        }
+      if (pass === docSnap.data().password) {
+        // Previously the "remember" flag decided between localStorage and
+        // sessionStorage while the app only read localStorage, so a reload
+        // logged you out. Both stores are now written and both are read.
+        const value = "true";
+        localStorage.setItem(STORAGE_KEYS.adminAuth, value);
+        sessionStorage.setItem(STORAGE_KEYS.adminAuth, value);
         setIsAuthed(true);
         nav("/admin");
       } else {
-        alert("Incorrect password");
+        setError("Incorrect password.");
       }
-    } catch (err) {
-      alert("Error: " + err.message);
+    } catch {
+      setError("Could not sign in. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black text-white antialiased selection:bg-blue-500/30 font-sans">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-2xl h-64 bg-blue-600/5 blur-[120px] rounded-full pointer-events-none" />
-
-      <motion.div 
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative w-full max-w-[360px] px-6"
-      >
-        <div className="flex flex-col items-center mb-10 text-center">
-          <div className="w-40 h-10 rounded-lg flex items-center justify-center shadow-lg mb-4">
-            <img src={Logo} alt="" />
-          </div>
-          <h1 className="text-xl font-bold tracking-tight mb-1">Cedars Tech</h1>
-          <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-[0.2em]">Management Portal</p>
+    <div className="flex min-h-screen flex-col items-center justify-center bg-canvas px-5">
+      <div className="w-full max-w-[22rem]">
+        <div className="flex flex-col items-center text-center">
+          <img src={Logo} alt="" className="size-9" width={36} height={36} />
+          <h1 className="mt-4 text-[20px] font-semibold tracking-[-0.02em] text-ink">
+            Cedars Tech
+          </h1>
+          <p className="mt-1 text-[13px] text-ink-tertiary">Store management</p>
         </div>
 
-        <div className="bg-zinc-950/40 backdrop-blur-md border border-white/5 p-6 rounded-[1.5rem] shadow-2xl">
-          <div className="space-y-5">
-            <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 ml-1">Password</label>
-              <div className="relative group">
-                <FiLock className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-blue-500 transition-colors" size={14} />
-                <input
-                  type={showPass ? "text" : "password"}
-                  className="w-full bg-zinc-900/40 border border-white/5 p-3.5 pl-11 rounded-xl outline-none focus:ring-1 ring-blue-500/30 transition-all text-sm"
-                  placeholder="Enter admin key"
-                  value={pass}
-                  onChange={(e) => setPass(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && login()}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPass(prev => !prev)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-white transition-colors"
-                >
-                  {showPass ? <FiEyeOff size={14} /> : <FiEye size={14} />}
-                </button>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between px-1">
-              <label className="flex items-center gap-2 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  checked={remember}
-                  onChange={(e) => setRemember(e.target.checked)}
-                  className="hidden"
-                />
-                <div className={`w-4 h-4 rounded border transition-all flex items-center justify-center ${remember ? 'bg-blue-600 border-blue-600' : 'border-zinc-800 bg-transparent'}`}>
-                  {remember && <div className="w-1.5 h-1.5 bg-white rounded-full shadow-sm" />}
-                </div>
-                <span className="text-[9px] font-bold uppercase tracking-widest text-zinc-500 group-hover:text-zinc-400">Keep session active</span>
-              </label>
-            </div>
-
-            <div className="pt-2">
-              <button
-                onClick={login}
-                disabled={loading}
-                className="w-full relative group overflow-hidden bg-white text-black py-3.5 rounded-xl font-bold text-[10px] uppercase tracking-[0.2em] hover:bg-blue-600 hover:text-white transition-all active:scale-[0.98] disabled:opacity-50"
-              >
-                <span className="relative z-10 flex items-center justify-center gap-2">
-                  {loading ? "Authenticating..." : "Sign In"}
-                  {!loading && <FiArrowRight size={14} />}
-                </span>
-              </button>
-            </div>
+        <form
+          className="mt-8 rounded-[var(--radius-lg)] border border-line bg-surface p-6 shadow-card"
+          onSubmit={(event) => {
+            event.preventDefault();
+            if (!loading) login();
+          }}
+        >
+          <label
+            htmlFor="admin-password"
+            className="block text-[13px] font-medium text-ink-secondary"
+          >
+            Password
+          </label>
+          <div className="relative mt-2">
+            <FiLock
+              className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-ink-tertiary"
+              aria-hidden="true"
+            />
+            <input
+              id="admin-password"
+              type={showPass ? "text" : "password"}
+              autoComplete="current-password"
+              value={pass}
+              onChange={(event) => setPass(event.target.value)}
+              placeholder="Enter the admin password"
+              className={cn(inputClasses(Boolean(error)), "pl-10")}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPass((previous) => !previous)}
+              aria-label={showPass ? "Hide password" : "Show password"}
+              className="absolute right-3 top-1/2 grid size-8 -translate-y-1/2 place-items-center rounded-[var(--radius-sm)] text-ink-tertiary transition-colors hover:bg-muted hover:text-ink"
+            >
+              {showPass ? <FiEyeOff size={15} /> : <FiEye size={15} />}
+            </button>
           </div>
-        </div>
+
+          {error && <p className="mt-2 text-[13px] text-danger">{error}</p>}
+
+          <label className="mt-4 flex cursor-pointer items-center gap-2.5 text-[13px] text-ink-secondary">
+            <span
+              className={cn(
+                "grid size-4 place-items-center rounded-[5px] border transition-colors duration-150",
+                remember ? "border-brand bg-brand" : "border-line-strong bg-surface"
+              )}
+            >
+              {remember && (
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              )}
+            </span>
+            Keep me signed in
+            <input
+              type="checkbox"
+              checked={remember}
+              onChange={(event) => setRemember(event.target.checked)}
+              className="sr-only"
+            />
+          </label>
+
+          <Button type="submit" size="lg" block className="mt-6" disabled={loading}>
+            {loading ? "Signing in…" : "Sign in"}
+            {!loading && <FiArrowRight size={16} />}
+          </Button>
+        </form>
 
         <button
+          type="button"
           onClick={() => nav("/prices")}
-          className="mt-8 flex items-center justify-center gap-2 w-full text-[9px] font-bold uppercase tracking-[0.2em] text-zinc-600 hover:text-zinc-400 transition-colors"
+          className="mt-6 flex w-full items-center justify-center gap-1.5 rounded-[var(--radius-sm)] text-[13px] text-ink-tertiary transition-colors hover:text-ink"
         >
-          <FiArrowLeft size={12} />
-          Back to Shop
+          <FiArrowLeft size={14} />
+          Back to the store
         </button>
-      </motion.div>
-
-      <div className="absolute bottom-10 opacity-10 text-[8px] font-bold uppercase tracking-[0.4em]">
-        © 2026 Cedars Tech Lebanon
       </div>
     </div>
   );

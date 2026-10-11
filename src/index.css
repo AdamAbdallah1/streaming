@@ -1,1 +1,456 @@
 @import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ==========================================================================
+   Cedars Tech Streaming — design system
+   A warm, gallery-like commerce surface that lets each service's own brand
+   artwork supply the colour. Chrome stays quiet; the marks carry the energy.
+   ========================================================================== */
+
+:root {
+  /* Surfaces — warm paper, not clinical grey */
+  --canvas: #f4f2ec;
+  --surface: #ffffff;
+  --surface-sunken: #ece9e1;
+  --surface-muted: #e6e2d8;
+  --surface-inset: #f8f6f1;
+
+  /* Lines */
+  --line: #e0dcd1;
+  --line-strong: #cdc7b8;
+  --line-hairline: #eae6dc;
+
+  /* Type — warm near-black */
+  --ink: #16150f;
+  --ink-secondary: #56544a;
+  --ink-tertiary: #8a877a;
+  --ink-inverse: #ffffff;
+
+  /* Cedar accent — used only for action and signal */
+  --brand: #1b44d4;
+  --brand-strong: #1636ad;
+  --brand-press: #122c8c;
+  --brand-soft: #eef2fd;
+  --brand-soft-strong: #dde5fb;
+  --brand-line: #c2d0f6;
+
+  /* Status */
+  --positive: #17703f;
+  --positive-soft: #ecf8f0;
+  --positive-line: #bfe6cd;
+  --warning: #96560a;
+  --warning-soft: #fdf6e8;
+  --warning-line: #f0dcaf;
+  --danger: #b3261e;
+  --danger-soft: #fdf0ef;
+  --danger-line: #f2cecb;
+
+  /* Elevation — restrained, architectural */
+  --shadow-card: 0 1px 2px rgb(22 21 15 / 0.05);
+  --shadow-raised: 0 1px 3px rgb(22 21 15 / 0.06), 0 10px 24px -10px rgb(22 21 15 / 0.14);
+  --shadow-pop: 0 2px 6px rgb(22 21 15 / 0.07), 0 24px 56px -18px rgb(22 21 15 / 0.22);
+  --shadow-bar: 0 -1px 0 var(--line), 0 -14px 32px -18px rgb(22 21 15 / 0.16);
+
+  /* Radii */
+  --radius-sm: 7px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-pill: 999px;
+
+  --header-h: 64px;
+}
+
+.dark {
+  --canvas: #100f0c;
+  --surface: #191813;
+  --surface-sunken: #14130f;
+  --surface-muted: #221f19;
+  --surface-inset: #1c1a15;
+
+  --line: #2c2921;
+  --line-strong: #3d392e;
+  --line-hairline: #24211a;
+
+  --ink: #f7f4ec;
+  --ink-secondary: #b3ada0;
+  --ink-tertiary: #857f72;
+  --ink-inverse: #16150f;
+
+  --brand: #5b86f0;
+  --brand-strong: #4570e8;
+  --brand-press: #3060dd;
+  --brand-soft: #18203a;
+  --brand-soft-strong: #1e2a4a;
+  --brand-line: #2c3c66;
+
+  --positive: #62d69a;
+  --positive-soft: #12291d;
+  --positive-line: #1f5138;
+  --warning: #e8b55c;
+  --warning-soft: #2a2210;
+  --warning-line: #5c4718;
+  --danger: #f08a80;
+  --danger-soft: #2c1614;
+  --danger-line: #6b2a25;
+
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.5);
+  --shadow-raised: 0 1px 3px rgb(0 0 0 / 0.5), 0 10px 24px -10px rgb(0 0 0 / 0.6);
+  --shadow-pop: 0 2px 6px rgb(0 0 0 / 0.5), 0 24px 56px -18px rgb(0 0 0 / 0.7);
+  --shadow-bar: 0 -1px 0 var(--line), 0 -14px 32px -18px rgb(0 0 0 / 0.6);
+}
+
+@theme {
+  --color-brand-50: #eef2fd;
+  --color-brand-100: #dde5fb;
+  --color-brand-200: #c2d0f6;
+  --color-brand-300: #9bb2f0;
+  --color-brand-400: #7390e9;
+  --color-brand-500: #4f74e2;
+  --color-brand-600: #2f5ad9;
+  --color-brand-700: #1b44d4;
+  --color-brand-800: #1636ad;
+  --color-brand-900: #122c8c;
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI Variable Text", "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    "Noto Sans", sans-serif;
+
+  --radius-card: var(--radius-lg);
+}
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-sunken: var(--surface-sunken);
+  --color-muted: var(--surface-muted);
+  --color-inset: var(--surface-inset);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-hairline: var(--line-hairline);
+  --color-ink: var(--ink);
+  --color-ink-secondary: var(--ink-secondary);
+  --color-ink-tertiary: var(--ink-tertiary);
+  --color-ink-inverse: var(--ink-inverse);
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-brand-press: var(--brand-press);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-soft-strong: var(--brand-soft-strong);
+  --color-brand-line: var(--brand-line);
+  --color-positive: var(--positive);
+  --color-positive-soft: var(--positive-soft);
+  --color-positive-line: var(--positive-line);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning-line: var(--warning-line);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-line: var(--danger-line);
+
+  --shadow-card: var(--shadow-card);
+  --shadow-raised: var(--shadow-raised);
+  --shadow-pop: var(--shadow-pop);
+  --shadow-bar: var(--shadow-bar);
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--canvas);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* One optical treatment for every heading. */
+  h1, h2, h3 {
+    letter-spacing: -0.028em;
+    font-weight: 600;
+    text-wrap: balance;
+  }
+
+  tnum, [data-numeric] {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  ::selection {
+    background-color: var(--brand-soft-strong);
+    color: var(--brand-press);
+  }
+
+  input, select, textarea, button {
+    font: inherit;
+    color: inherit;
+  }
+
+  input::placeholder, textarea::placeholder {
+    color: var(--ink-tertiary);
+  }
+
+  select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238a877a' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    padding-right: 2.25rem;
+  }
+}
+
+/* ---------------------------------------------------------------- utilities */
+
+@utility tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/** Uppercase, tracked micro-label used for metadata. */
+@utility label-xs {
+  font-size: 0.6875rem;
+  line-height: 1.3;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/** The large display figure used for prices and page titles. */
+@utility display-price {
+  font-weight: 650;
+  letter-spacing: -0.035em;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* ==========================================================================
+   Motion language — "quiet response"
+
+   Durations, easings and keyframes live here so every transition in the
+   product shares one rhythm. Only transform and opacity are animated so
+   work stays on the compositor and remains smooth on low-end phones.
+   ========================================================================== */
+
+:root {
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.3, 0.64, 1);
+
+  --dur-instant: 90ms;
+  --dur-fast: 140ms;
+  --dur-base: 200ms;
+  --dur-slow: 280ms;
+
+  /* Stagger unit — each item in a sequence offsets by this much. */
+  --stagger: 45ms;
+}
+
+@layer utilities {
+  /* ------------------------------------------------------------ easing */
+  .ease-out { transition-timing-function: var(--ease-out); }
+
+  /* -------------------------------------------------------- entrances */
+  @keyframes ct-rise {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  @keyframes ct-fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes ct-scale-in {
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: none; }
+  }
+
+  .anim-rise { animation: ct-rise var(--dur-base) var(--ease-out) both; }
+  .anim-fade { animation: ct-fade var(--dur-base) var(--ease-out) both; }
+  .anim-scale-in { animation: ct-scale-in var(--dur-base) var(--ease-out) both; }
+
+  /* Staggered children. Set --i on each child, or rely on the nth-child
+     fallback so markup needs no extra props. */
+  .stagger > * {
+    animation: ct-rise var(--dur-base) var(--ease-out) both;
+    animation-delay: calc(var(--i, 0) * var(--stagger));
+  }
+
+  .stagger > *:nth-child(1) { --i: 0; }
+  .stagger > *:nth-child(2) { --i: 1; }
+  .stagger > *:nth-child(3) { --i: 2; }
+  .stagger > *:nth-child(4) { --i: 3; }
+  .stagger > *:nth-child(5) { --i: 4; }
+  .stagger > *:nth-child(6) { --i: 5; }
+  .stagger > *:nth-child(7) { --i: 6; }
+  .stagger > *:nth-child(8) { --i: 7; }
+
+  /* ------------------------------------------------------- feedback */
+  @keyframes ct-pop {
+    0% { transform: scale(0.7); opacity: 0; }
+    60% { transform: scale(1.08); opacity: 1; }
+    100% { transform: scale(1); }
+  }
+  .anim-pop { animation: ct-pop 240ms var(--ease-spring) both; }
+
+  @keyframes ct-tick {
+    0% { transform: scale(0) rotate(-12deg); }
+    100% { transform: scale(1) rotate(0); }
+  }
+  .anim-tick { animation: ct-tick 220ms var(--ease-spring) both; }
+
+  @keyframes ct-num-roll {
+    from { transform: translateY(-45%); opacity: 0; }
+    to { transform: none; opacity: 1; }
+  }
+  .anim-num { animation: ct-num-roll 180ms var(--ease-out) both; }
+
+  /* Attention ring — used on the cart badge when its count changes. */
+  @keyframes ct-ring {
+    0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--brand) 40%, transparent); }
+    100% { box-shadow: 0 0 0 9px color-mix(in srgb, var(--brand) 0%, transparent); }
+  }
+  .anim-ring { animation: ct-ring 520ms var(--ease-out) both; }
+
+  /* Brand plate sheen — a single restrained sweep on hover. */
+  @keyframes ct-sheen {
+    from { transform: translateX(-130%) skewX(-14deg); }
+    to { transform: translateX(240%) skewX(-14deg); }
+  }
+
+  /* Leaving the cart. */
+  @keyframes ct-leave {
+    to { opacity: 0; transform: translateX(10px); }
+  }
+  .anim-leave { animation: ct-leave 160ms var(--ease-in) both; }
+
+  /* Validation nudge — a single restrained shake for invalid submit. */
+  @keyframes ct-shake {
+    0%, 100% { transform: none; }
+    25% { transform: translateX(-3px); }
+    50% { transform: translateX(3px); }
+    75% { transform: translateX(-2px); }
+  }
+  .anim-shake { animation: ct-shake 260ms var(--ease-out) both; }
+
+  /* -------------------------------------------------------- surfaces */
+  .lift {
+    transition:
+      border-color var(--dur-fast) var(--ease-out),
+      box-shadow var(--dur-fast) var(--ease-out),
+      transform var(--dur-fast) var(--ease-out),
+      background-color var(--dur-fast) var(--ease-out);
+  }
+
+  @media (hover: hover) {
+    .lift:hover { transform: translateY(-2px); }
+  }
+
+  .press {
+    transition: transform var(--dur-instant) var(--ease-out);
+  }
+
+  .press:active { transform: scale(0.98); }
+
+  /* Brand plate tint that deepens on hover, driven by the service's own
+     sampled colour. */
+  .plate-tint {
+    transition: background-color var(--dur-fast) var(--ease-out);
+  }
+
+  @media (hover: hover) {
+    .group:hover .plate-tint,
+    .plate-tint:hover {
+      background-color: color-mix(in srgb, var(--plate-color, transparent) 16%, #ffffff) !important;
+    }
+  }
+
+  /* Logo responds to the card, not on its own. */
+  .logo-respond {
+    transition: transform var(--dur-base) var(--ease-spring);
+  }
+
+  @media (hover: hover) {
+    .group:hover .logo-respond { transform: scale(1.05); }
+  }
+
+  .group:focus-visible .logo-respond { transform: scale(1.05); }
+
+  /* Pointer-tracked highlight. --mx/--my are written by JS (rAF-throttled);
+     without them the gradient simply stays centred and invisible. */
+  .pointer-glow {
+    background-image: radial-gradient(
+      180px circle at var(--mx, 50%) var(--my, 50%),
+      color-mix(in srgb, var(--plate-color, transparent) 22%, transparent),
+      transparent 70%
+    );
+    background-repeat: no-repeat;
+    opacity: 0;
+    transition: opacity var(--dur-base) var(--ease-out);
+  }
+
+  @media (hover: hover) {
+    .group:hover .pointer-glow { opacity: 1; }
+  }
+
+  /* Row selection wash used by plan lists. */
+  .row-select {
+    transition:
+      background-color var(--dur-fast) var(--ease-out),
+      border-color var(--dur-fast) var(--ease-out);
+  }
+
+  /* ----------------------------------------------- reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .anim-rise, .anim-fade, .anim-scale-in, .stagger > *,
+    .anim-pop, .anim-tick, .anim-num, .anim-ring, .anim-leave, .anim-shake {
+      animation: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+
+    .lift:hover, .press:active { transform: none; }
+
+    .group:hover .logo-respond,
+    .group:focus-visible .logo-respond { transform: none; }
+
+    .pointer-glow { display: none; }
+
+    /* Keep state changes legible, just instant. */
+    .lift, .press, .plate-tint, .logo-respond, .row-select, .pointer-glow {
+      transition-duration: 1ms !important;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

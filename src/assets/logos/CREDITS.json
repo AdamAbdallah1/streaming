@@ -1,0 +1,47 @@
+[
+  {
+    "slug": "netflix",
+    "file": "netflix.svg",
+    "source": "File:Netflix logo.svg",
+    "commonsPage": "https://commons.wikimedia.org/wiki/File%3ANetflix%20logo.svg",
+    "license": "Public domain",
+    "artist": "TM/®Netflix Inc.",
+    "bytes": 7146
+  },
+  {
+    "slug": "disney-plus",
+    "file": "disney-plus.svg",
+    "source": "File:Disney+ logo.svg",
+    "commonsPage": "https://commons.wikimedia.org/wiki/File%3ADisney%2B%20logo.svg",
+    "license": "Public domain",
+    "artist": "Disney Enterprises, Inc.",
+    "bytes": 8255
+  },
+  {
+    "slug": "amazon-prime",
+    "file": "amazon-prime.svg",
+    "source": "File:Amazon Prime Video logo (2022).svg",
+    "commonsPage": "https://commons.wikimedia.org/wiki/File%3AAmazon%20Prime%20Video%20logo%20(2022).svg",
+    "license": "Public domain",
+    "artist": "Pentagram Studio",
+    "bytes": 7286
+  },
+  {
+    "slug": "osn-plus",
+    "file": "osn-plus.svg",
+    "source": "File:OSN+ logo.svg",
+    "commonsPage": "https://commons.wikimedia.org/wiki/File%3AOSN%2B%20logo.svg",
+    "license": "Public domain",
+    "artist": "Anghami FZ LLC",
+    "bytes": 5284
+  },
+  {
+    "slug": "anghami",
+    "file": "anghami.png",
+    "source": "File:Anghami logo.png",
+    "commonsPage": "https://commons.wikimedia.org/wiki/File%3AAnghami%20logo.png",
+    "license": "CC BY-SA 4.0",
+    "artist": "V.M.A 87",
+    "bytes": 588293
+  }
+]
