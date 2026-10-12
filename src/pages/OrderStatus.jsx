@@ -126,7 +126,7 @@ export default function OrderStatus() {
         <div
           key={status}
           className={cn(
-            "anim-scale-in rounded-[var(--radius-lg)] border p-5",
+            "anim-scale-in rounded-[var(--radius-lg)] border px-4 py-4",
             tone.wrap
           )}
         >
@@ -137,7 +137,7 @@ export default function OrderStatus() {
               <p className="mt-1 text-[14px] leading-6 text-ink-secondary">{meta.blurb}</p>
             </div>
           </div>
-          <p className="mt-4 flex items-center gap-1.5 border-t border-current/10 pt-3.5 text-[12px] text-ink-tertiary">
+          <p className="mt-3 flex items-center gap-1.5 border-t border-current/10 pt-3 text-[12px] text-ink-tertiary">
             <FiRefreshCw size={12} className="shrink-0" aria-hidden="true" />
             This page updates automatically — no need to refresh.
           </p>
@@ -145,20 +145,26 @@ export default function OrderStatus() {
 
         {/* Invoice */}
         <section className="anim-rise mt-5 overflow-hidden rounded-[var(--radius-lg)] border border-line bg-surface shadow-card">
-          <div className="flex flex-wrap items-end justify-between gap-4 border-b border-line px-5 py-4">
+          <div className="flex flex-wrap items-end justify-between gap-4 border-b border-line bg-inset px-5 py-5">
             <div>
               <h2 className="text-[13px] font-semibold uppercase tracking-[0.06em] text-ink-tertiary">
                 Invoice
               </h2>
+              <p className="mt-1.5 tnum text-[22px] font-semibold tracking-[-0.02em] text-ink">
+                {order.reference}
+              </p>
               <p className="mt-1 text-[12px] text-ink-tertiary tnum">
                 {order.placedAtLabel || "—"}
               </p>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="tnum text-[17px] font-semibold tracking-[-0.01em] text-ink">
-                {order.reference}
-              </span>
-              <CopyButton value={order.reference} label="Copy" />
+            <div className="flex flex-col items-end gap-2">
+              <CopyButton value={order.reference} label="Copy reference" />
+              <Money
+                amount={order.total ?? 0}
+                currency={orderCurrency}
+                emphasis
+                className="text-[26px] text-ink"
+              />
             </div>
           </div>
 
@@ -218,9 +224,9 @@ export default function OrderStatus() {
         >
           <h2 className="text-[15px] font-semibold text-ink">Payment instructions</h2>
 
-          <div className="mt-3.5 flex flex-wrap items-center gap-2.5 rounded-[var(--radius-md)] border border-line bg-inset p-3.5">
-            <span className="text-[13px] text-ink-secondary">Whish number</span>
-            <span className="tnum ml-auto text-[17px] font-semibold tracking-[-0.01em] text-ink">
+          <div className="mt-3.5 flex flex-wrap items-center gap-2.5 rounded-[var(--radius-md)] border border-brand bg-brand-soft p-3.5">
+            <span className="text-[13px] font-medium text-brand-strong">Whish</span>
+            <span className="tnum ml-auto text-[19px] font-semibold tracking-[-0.01em] text-ink">
               {formatWhishNumber(order.payment?.number || BUSINESS.whish.number)}
             </span>
             <CopyButton

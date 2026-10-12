@@ -88,7 +88,7 @@ export default function Cart() {
                   <li
                     key={lineKey}
                     className={cn(
-                      "px-4 py-4 sm:px-5",
+                      "px-4 py-3.5 sm:px-5",
                       !line.inStock && "opacity-60",
                       isLeaving && "anim-leave"
                     )}
@@ -122,7 +122,8 @@ export default function Cart() {
                           key={line.lineTotal}
                           amount={line.lineTotal}
                           currency={currency}
-                          className="anim-num text-[15px] font-semibold text-ink"
+                          strong
+                          className="anim-num text-[16px] text-ink"
                         />
                         <button
                           type="button"

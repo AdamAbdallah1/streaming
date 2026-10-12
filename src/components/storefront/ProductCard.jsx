@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+import { FiArrowRight } from "react-icons/fi";
 import { ROUTES } from "../../lib/config";
 import { formatMoney } from "../../lib/format";
 import { serviceMinPrice, serviceStockCount } from "../../lib/catalog";
@@ -60,22 +61,24 @@ export default function ProductCard({ service, currency, index = 0 }) {
     <Link
       to={ROUTES.product(service.slug)}
       style={{ "--plate-color": plateColor, "--i": index }}
+      aria-label={`${service.name} — view ${planCount} ${planCount === 1 ? "plan" : "plans"}${inStock && minPrice != null ? ` from ${formatMoney(minPrice, currency)}` : ""}`}
       className={cn(
         "group flex overflow-hidden rounded-[var(--radius-lg)] border border-line bg-surface",
         "lift hover:border-line-strong hover:shadow-raised",
         "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand)]",
         // Horizontal row on phones, stacked card from small screens up.
-        "flex-row sm:flex-col",
+        // Self-stretch keeps every card in a row equally tall.
+        "flex-row self-stretch sm:flex-col",
         !inStock && "opacity-75"
       )}
     >
-      {/* Identity plate — the service's own brand mark */}
+      {/* Identity plate — the service's own brand mark leads the card */}
       <div
         ref={ref}
         className={cn(
           "plate-tint relative flex shrink-0 items-center justify-center overflow-hidden",
-          "h-[92px] w-[92px] border-b-0 border-r border-hairline px-3",
-          "sm:h-[112px] sm:w-full sm:border-b sm:border-r-0 sm:px-8",
+          "h-[108px] w-[128px] border-b-0 border-r border-hairline",
+          "sm:h-[128px] sm:w-full sm:border-b sm:border-r-0",
           !inStock && "saturate-[0.35]"
         )}
         style={
@@ -87,8 +90,8 @@ export default function ProductCard({ service, currency, index = 0 }) {
         {/* Pointer-tracked highlight sits above the wash, below the mark. */}
         <span aria-hidden="true" className="pointer-glow absolute inset-0" />
 
-        <span className="logo-respond relative flex items-center justify-center">
-          <ServiceLogoMark service={service} className="h-9 sm:h-11" />
+        <span className="logo-respond relative flex items-center justify-center px-5">
+          <ServiceLogoMark service={service} className="h-10 sm:h-12" />
         </span>
 
         {!inStock && (
@@ -99,27 +102,38 @@ export default function ProductCard({ service, currency, index = 0 }) {
       </div>
 
       {/* Facts */}
-      <div className="flex min-w-0 flex-1 flex-col justify-center p-3.5 sm:p-4">
-        <h3 className="truncate text-[15px] font-semibold tracking-[-0.015em] text-ink">
+      <div className="flex min-w-0 flex-1 flex-col p-3.5 sm:p-5">
+        <h3 className="truncate text-[16px] font-semibold tracking-[-0.015em] text-ink">
           {service.name}
         </h3>
 
         <p className="mt-1 text-[12px] text-ink-tertiary tnum">
-          {planCount} {planCount === 1 ? "option" : "options"}
-          {inStock && stockCount < planCount && ` · ${stockCount} available`}
+          {planCount} {planCount === 1 ? "plan" : "plans"}
+          {inStock && stockCount < planCount && ` · ${stockCount} in stock`}
         </p>
 
-        <div className="mt-2.5 flex items-baseline gap-1.5 sm:mt-4">
-          {inStock ? (
-            <>
-              <span className="text-[12px] text-ink-tertiary">from</span>
-              <span className="display-price text-[19px] text-ink sm:text-[20px]">
-                {formatMoney(minPrice, currency)}
+        <div className="mt-auto flex items-end justify-between gap-2 pt-3.5">
+          <p className="flex items-baseline gap-1.5 tnum">
+            {inStock && minPrice != null ? (
+              <>
+                <span className="text-[12px] text-ink-tertiary">from</span>
+                <span className="display-price text-[23px] leading-none text-ink">
+                  {formatMoney(minPrice, currency)}
+                </span>
+              </>
+            ) : (
+              <span className="text-[13px] font-medium text-ink-tertiary">
+                Not currently available
               </span>
-            </>
-          ) : (
-            <span className="text-[13px] font-medium text-ink-tertiary">
-              Not currently available
+            )}
+          </p>
+
+          {inStock && (
+            <span
+              aria-hidden="true"
+              className="grid size-8 shrink-0 place-items-center rounded-full border border-line text-ink-tertiary transition-colors duration-150 group-hover:border-ink group-hover:bg-ink group-hover:text-canvas"
+            >
+              <FiArrowRight size={15} />
             </span>
           )}
         </div>

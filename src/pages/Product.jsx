@@ -72,6 +72,16 @@ export default function Product() {
     visiblePlans.find((plan) => plan.inStock) ??
     null;
 
+  // When showing every account type at once, group plans under their type
+  // so Full Account and 1 User options can be compared separately.
+  const groupedPlans = useMemo(() => {
+    if (activeType !== "All" || types.length < 2) return null;
+    return types.map((type) => ({
+      type,
+      plans: visiblePlans.filter((plan) => plan.type === type),
+    })).filter((group) => group.plans.length > 0);
+  }, [activeType, types, visiblePlans]);
+
   // Panel figures and their animation keys are derived before any early
   // return so hook order stays stable.
   const panelTotal = selectedPlan ? selectedPlan.price * active.quantity : 0;
@@ -156,7 +166,7 @@ export default function Product() {
 
         {/* Service identity */}
         <div className="stagger mt-5 flex items-start gap-4 sm:gap-5">
-          <ServiceLogoHero service={service} className="sm:size-24" />
+          <ServiceLogoHero service={service} />
           <div className="min-w-0 flex-1 pt-1">
             <div className="flex flex-wrap items-center gap-2">
               <span className="label-xs text-ink-tertiary">{service.category}</span>
@@ -189,7 +199,7 @@ export default function Product() {
                   aria-pressed={active}
                   onClick={() => update({ type })}
                   className={cn(
-                    "h-8 rounded-[var(--radius-pill)] border px-3.5 text-[13px] font-medium",
+                    "h-9 rounded-[var(--radius-pill)] border px-4 text-[13px] font-medium",
                     "transition-all duration-150 ease-out active:scale-[0.97]",
                     active
                       ? "border-ink bg-ink text-canvas"
@@ -212,78 +222,49 @@ export default function Product() {
                 title="No options available"
                 description="There are no plans for this account type right now."
               />
+            ) : groupedPlans ? (
+              <div className="space-y-5">
+                {groupedPlans.map((group) => (
+                  <section key={group.type} aria-label={`${group.type} plans`}>
+                    <div className="mb-2 flex items-baseline justify-between gap-3 px-1">
+                      <h2 className="text-[13px] font-semibold uppercase tracking-[0.06em] text-ink-secondary">
+                        {group.type}
+                      </h2>
+                      <p className="text-[12px] text-ink-tertiary tnum">
+                        {group.plans.length} {group.plans.length === 1 ? "option" : "options"}
+                      </p>
+                    </div>
+                    <ul className="divide-y divide-line overflow-hidden rounded-[var(--radius-lg)] border border-line bg-surface">
+                      {group.plans.map((plan, index) => (
+                        <PlanRow
+                          key={plan.key}
+                          plan={plan}
+                          index={index}
+                          showType={false}
+                          isActive={plan.key === selectedPlan?.key}
+                          currency={currency}
+                          onSelect={() => update({ planKey: plan.key })}
+                          onKeyDown={handleKeyDown}
+                        />
+                      ))}
+                    </ul>
+                  </section>
+                ))}
+              </div>
             ) : (
               <ul className="divide-y divide-line overflow-hidden rounded-[var(--radius-lg)] border border-line bg-surface">
-                {visiblePlans.map((plan, index) => {
-                  const isActive = plan.key === selectedPlan?.key;
-                  return (
-                    <li
-                      key={plan.key}
-                      className="anim-rise"
-                      style={{ animationDelay: `${index * 35}ms` }}
-                    >
-                      <label
-                        onKeyDown={handleKeyDown}
-                        tabIndex={0}
-                        className={cn(
-                          "row-select flex cursor-pointer items-center gap-3.5 px-4 py-3.5 sm:px-5",
-                          isActive && "bg-brand-soft",
-                          !isActive && plan.inStock && "hover:bg-sunken",
-                          !plan.inStock && "cursor-not-allowed opacity-55"
-                        )}
-                      >
-                        <span
-                          aria-hidden="true"
-                          className={cn(
-                            "grid size-[18px] shrink-0 place-items-center rounded-full border-2 transition-colors duration-150",
-                            isActive ? "border-brand" : "border-line-strong"
-                          )}
-                        >
-                          {isActive && <span className="anim-tick size-2 rounded-full bg-brand" />}
-                        </span>
-                        <input
-                          type="radio"
-                          name="plan"
-                          value={plan.key}
-                          checked={isActive}
-                          disabled={!plan.inStock}
-                          onChange={() => update({ planKey: plan.key })}
-                          className="sr-only"
-                        />
-
-                        <span className="min-w-0 flex-1">
-                          <span className="flex flex-wrap items-baseline gap-x-2">
-                            <span className="text-[15px] font-medium text-ink">
-                              {plan.label}
-                            </span>
-                            {plan.type && (
-                              <span className="text-[13px] text-ink-secondary">
-                                {plan.type}
-                              </span>
-                            )}
-                          </span>
-                          <span className="mt-0.5 block text-[12px] text-ink-tertiary">
-                            {plan.duration || "\u00A0"}
-                          </span>
-                        </span>
-
-                        <span className="shrink-0 text-right">
-                          <Money
-                            amount={plan.price}
-                            wasAmount={plan.wasPrice}
-                            currency={currency}
-                            className="text-[15px] text-ink"
-                          />
-                          {!plan.inStock && (
-                            <span className="mt-0.5 block text-[11px] font-medium text-ink-tertiary">
-                              Out of stock
-                            </span>
-                          )}
-                        </span>
-                      </label>
-                    </li>
-                  );
-                })}
+                {visiblePlans.map((plan, index) => (
+                  <PlanRow
+                    key={plan.key}
+                    plan={plan}
+                    index={index}
+                    showType={activeType === "All"}
+                    isActive={plan.key === selectedPlan?.key}
+                    currency={currency}
+                    onSelect={() => update({ planKey: plan.key })}
+                    onKeyDown={handleKeyDown}
+                  />
+                ))}
               </ul>
             )}
           </section>
@@ -364,6 +345,88 @@ export default function Product() {
         </div>
       )}
     </StoreLayout>
+  );
+}
+
+function PlanRow({ plan, index, showType, isActive, currency, onSelect, onKeyDown }) {
+  return (
+    <li
+      className="anim-rise"
+      style={{ animationDelay: `${Math.min(index, 7) * 35}ms` }}
+    >
+      <label
+        onKeyDown={onKeyDown}
+        tabIndex={0}
+        className={cn(
+          "row-select flex cursor-pointer items-center gap-3.5 px-4 py-4 sm:px-5",
+          isActive && "bg-brand-soft",
+          !isActive && plan.inStock && "hover:bg-sunken",
+          !plan.inStock && "cursor-not-allowed opacity-55"
+        )}
+      >
+        <span
+          aria-hidden="true"
+          className={cn(
+            "grid size-[18px] shrink-0 place-items-center rounded-full border-2 transition-colors duration-150",
+            isActive ? "border-brand" : "border-line-strong"
+          )}
+        >
+          {isActive && <span className="anim-tick size-2 rounded-full bg-brand" />}
+        </span>
+        <input
+          type="radio"
+          name="plan"
+          value={plan.key}
+          checked={isActive}
+          disabled={!plan.inStock}
+          onChange={onSelect}
+          className="sr-only"
+        />
+
+        <span className="min-w-0 flex-1">
+          <span className="flex flex-wrap items-baseline gap-x-2">
+            <span
+              className={cn(
+                "text-[15px] text-ink",
+                isActive ? "font-semibold" : "font-medium"
+              )}
+            >
+              {plan.label}
+            </span>
+            {showType && plan.type && (
+              <span className="text-[13px] text-ink-secondary">
+                {plan.type}
+              </span>
+            )}
+          </span>
+          {plan.duration && (
+            <span className="mt-0.5 block text-[12px] text-ink-tertiary">
+              {plan.duration}
+            </span>
+          )}
+        </span>
+
+        <span className="shrink-0 text-right">
+          <Money
+            amount={plan.price}
+            wasAmount={plan.wasPrice}
+            currency={currency}
+            strong={isActive}
+            className="text-[16px] text-ink"
+          />
+          {plan.saving > 0 && (
+            <span className="mt-0.5 block text-[11px] font-medium text-positive tnum">
+              Save <Money amount={plan.saving} currency={currency} />
+            </span>
+          )}
+          {!plan.inStock && (
+            <span className="mt-0.5 block text-[11px] font-medium text-ink-tertiary">
+              Out of stock
+            </span>
+          )}
+        </span>
+      </label>
+    </li>
   );
 }
 

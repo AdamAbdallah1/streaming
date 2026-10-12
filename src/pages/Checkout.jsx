@@ -237,7 +237,7 @@ export default function Checkout() {
                   </div>
 
                   {/* The selected method */}
-                  <div className="mt-5 rounded-[var(--radius-lg)] border-2 border-brand bg-brand-soft p-4">
+                  <div className="mt-5 rounded-[var(--radius-lg)] border border-brand bg-brand-soft p-4 sm:p-5">
                     <div className="flex items-center justify-between gap-3">
                       <p className="text-[15px] font-semibold text-brand-strong">
                         {BUSINESS.whish.label}
@@ -249,23 +249,23 @@ export default function Checkout() {
                         <FiCheck size={12} />
                       </span>
                     </div>
-                    <p className="mt-1 text-[13px] text-ink-secondary">
-                      Send the exact total to the number below.
-                    </p>
 
-                    <div className="mt-3.5 flex flex-wrap items-center gap-2.5">
-                      <span className="tnum text-[20px] font-semibold tracking-[-0.01em] text-ink">
+                    <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
+                      <span className="tnum text-[26px] font-semibold tracking-[-0.02em] text-ink">
                         {formatWhishNumber(BUSINESS.whish.number)}
                       </span>
                       <CopyButton value={BUSINESS.whish.number} label="Copy number" />
                     </div>
+                    <p className="mt-1.5 text-[13px] text-ink-secondary">
+                      Send the exact total to this number, using your invoice reference as the transfer note.
+                    </p>
                   </div>
 
                   <div className="mt-4 rounded-[var(--radius-lg)] border border-line bg-inset p-4">
                     <p className="text-[13px] font-semibold text-ink">How to pay</p>
                     <ol className="mt-2.5 space-y-2">
                       {[
-                        "Place your order to generate the invoice reference.",
+                        "Place your order below to generate the invoice reference.",
                         "Send the total to the Whish number above, using your invoice reference as the transfer note.",
                         "Confirm the order on WhatsApp so Cedars Tech can verify the transfer.",
                       ].map((text, index) => (

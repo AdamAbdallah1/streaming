@@ -48,17 +48,20 @@ export function PanelSkeleton() {
 
 export function CardGridSkeleton({ count = 6 }) {
   return (
-    <div className="mt-4 grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <div className="mt-4 grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
       {Array.from({ length: count }).map((_, index) => (
         <div
           key={index}
           className="flex flex-row overflow-hidden rounded-[var(--radius-lg)] border border-line bg-surface sm:flex-col"
         >
-          <Skeleton className="h-[86px] w-[86px] rounded-none sm:h-[104px] sm:w-full" />
-          <div className="flex-1 space-y-2 p-3.5 sm:p-4">
+          <Skeleton className="h-[108px] w-[128px] shrink-0 rounded-none sm:h-[128px] sm:w-full" />
+          <div className="min-w-0 flex-1 space-y-2 p-3.5 sm:p-4">
             <Skeleton className="h-4 w-28" />
             <Skeleton className="h-3 w-16" />
-            <Skeleton className="mt-3 h-5 w-20" />
+            <div className="flex items-end justify-between pt-1">
+              <Skeleton className="h-5 w-20" />
+              <Skeleton className="size-8 rounded-full" />
+            </div>
           </div>
         </div>
       ))}

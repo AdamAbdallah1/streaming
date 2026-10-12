@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { FiSearch } from "react-icons/fi";
-import BrandMosaic from "../components/storefront/BrandMosaic";
 import Header from "../components/storefront/Header";
 import ProductCard from "../components/storefront/ProductCard";
 import StoreLayout from "../components/storefront/StoreLayout";
@@ -12,7 +11,7 @@ import { useCatalog } from "../hooks/useCatalog";
 import { useCurrency } from "../lib/currency";
 import { cn } from "../lib/cn";
 import { findService, serviceMinPrice, slugify } from "../lib/catalog";
-import { ROUTES } from "../lib/config";
+import { BUSINESS, ROUTES } from "../lib/config";
 
 const SORTS = [
   { value: "name", label: "Name (A–Z)" },
@@ -117,104 +116,119 @@ export default function Storefront() {
     <StoreLayout>
       <Header search={search} onSearchChange={changeSearch} services={services} />
 
-      <main id="main" className="mx-auto max-w-[76rem] px-4 pb-4 pt-8 lg:px-8 lg:pt-12">
-        {/* Introduction */}
-        <div className="grid items-center gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-14">
-          <div className="stagger max-w-xl">
-            <p className="label-xs text-ink-tertiary">Cedars Tech · Lebanon</p>
-            <h1 className="mt-2.5 text-[30px] leading-[1.08] tracking-[-0.035em] text-ink sm:text-[40px]">
-              Streaming subscriptions,
-              <br className="hidden sm:block" />{" "}
-              <span className="text-ink-tertiary">delivered on WhatsApp.</span>
-            </h1>
-            <p className="mt-3.5 max-w-lg text-[14px] leading-6 text-ink-secondary">
-              Choose a plan, pay by Whish transfer, and confirm your order on
-              WhatsApp. No account to create.
+      <main id="main" className="mx-auto max-w-[76rem] px-4 pb-4 pt-8 sm:pt-10 lg:px-8 lg:pt-12">
+        {/* Hero: the title is the composition. Utility link sits right,
+            Apple-style — out of the way, useful, not decorative. */}
+        <div className="stagger max-w-3xl">
+          <p className="label-xs text-ink-tertiary">Cedars Tech · Digital subscriptions</p>
+          <h1 className="mt-3 text-[36px] leading-[1.04] tracking-[-0.04em] text-ink sm:text-[52px] lg:text-[60px]">
+            Your favourite streaming services.{" "}
+            <span className="text-ink-tertiary">One simple order.</span>
+          </h1>
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <p className="max-w-lg text-[14px] leading-6 text-ink-secondary sm:text-[15px]">
+              Choose your subscription, pay with {BUSINESS.whish.label}, and
+              confirm your order with us on WhatsApp.
             </p>
+            <a
+              href="#how-ordering"
+              className="hidden shrink-0 text-[13px] font-medium text-ink-secondary underline decoration-line-strong underline-offset-4 transition-colors hover:text-ink sm:block"
+            >
+              How ordering works ↓
+            </a>
           </div>
-
-          {/* Art-directed arrangement of the genuine service marks. Doubles
-              as one-tap navigation into each service. */}
-          <BrandMosaic
-            services={services}
-            className="w-full lg:w-[22rem]"
-          />
+          <p className="mt-4 text-[13px] text-ink-tertiary tnum">
+            {loading ? (
+              "Loading catalogue…"
+            ) : (
+              <>
+                {services.length} {services.length === 1 ? "service" : "services"} ·{" "}
+                {totalPlans} {totalPlans === 1 ? "plan" : "plans"} · {BUSINESS.whish.label} available
+              </>
+            )}
+          </p>
         </div>
 
-        {/* Facts + controls */}
-        <div className="anim-rise mt-7 flex flex-col gap-4 border-y border-line py-4 lg:flex-row lg:items-center lg:justify-between" style={{ animationDelay: "180ms" }}>
-          <dl className="flex items-center gap-6">
-            <div>
-              <dt className="label-xs text-ink-tertiary">Services</dt>
-              <dd className="mt-1 text-[17px] font-semibold text-ink tnum">
-                {loading ? "—" : services.length}
-              </dd>
-            </div>
-            <div className="h-8 w-px bg-line" aria-hidden="true" />
-            <div>
-              <dt className="label-xs text-ink-tertiary">Plans</dt>
-              <dd className="mt-1 text-[17px] font-semibold text-ink tnum">
-                {loading ? "—" : totalPlans}
-              </dd>
-            </div>
-            <div className="h-8 w-px bg-line" aria-hidden="true" />
-            <div>
-              <dt className="label-xs text-ink-tertiary">Currency</dt>
-              <dd className="mt-1 text-[17px] font-semibold text-ink">{currency}</dd>
-            </div>
-          </dl>
-
-          <div className="flex flex-wrap items-center gap-2.5">
-            <div className="relative">
-              <label htmlFor="sort" className="sr-only">Sort by</label>
-              <select
-                id="sort"
-                value={sort}
-                onChange={(event) => setSort(event.target.value)}
-                className="h-10 w-full rounded-[var(--radius-md)] border border-line bg-surface pl-3.5 text-[13px] font-medium text-ink transition-colors duration-150 hover:border-line-strong focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/15 sm:w-[200px]"
-              >
-                {SORTS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+        {/* Catalogue toolbar: section heading and controls read as one row. */}
+        <div className="mt-8 border-t border-line pt-5 sm:mt-10">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-baseline justify-between gap-3 sm:justify-start">
+              <h2 className="text-[19px] font-semibold tracking-[-0.02em] text-ink">
+                {activeCategory === "All" ? (
+                  <>All services. <span className="text-ink-tertiary">Take your pick.</span></>
+                ) : (
+                  activeCategory
+                )}
+              </h2>
+              <p className="text-[12px] text-ink-tertiary tnum sm:hidden">
+                {loading ? "…" : `${visible.length} ${visible.length === 1 ? "service" : "services"}`}
+              </p>
             </div>
 
-            <label
-              className={cn(
-                "flex h-10 cursor-pointer select-none items-center gap-2.5 rounded-[var(--radius-md)] border px-3.5 text-[13px] font-medium transition-colors duration-150",
-                inStockOnly
-                  ? "border-brand bg-brand-soft text-brand-strong"
-                  : "border-line bg-surface text-ink-secondary hover:border-line-strong"
-              )}
-            >
-              <span
+            <div className="anim-rise flex items-center gap-2.5" style={{ animationDelay: "120ms" }}>
+              <div className="min-w-0 flex-1 sm:flex-none">
+                <label htmlFor="sort" className="sr-only">Sort by</label>
+                <select
+                  id="sort"
+                  value={sort}
+                  onChange={(event) => setSort(event.target.value)}
+                  className="h-10 w-full rounded-[var(--radius-md)] border border-line bg-surface pl-3.5 text-[13px] font-medium text-ink transition-colors duration-150 hover:border-line-strong focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/15 sm:w-[200px]"
+                >
+                  {SORTS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <label
                 className={cn(
-                  "grid size-4 place-items-center rounded-[5px] border transition-colors duration-150",
-                  inStockOnly ? "border-brand bg-brand" : "border-line-strong bg-surface"
+                  "flex h-10 shrink-0 cursor-pointer select-none items-center gap-2.5 rounded-[var(--radius-md)] border px-3.5 text-[13px] font-medium transition-colors duration-150",
+                  inStockOnly
+                    ? "border-brand bg-brand-soft text-brand-strong"
+                    : "border-line bg-surface text-ink-secondary hover:border-line-strong"
                 )}
               >
-                {inStockOnly && (
-                  <svg className="anim-tick" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                )}
-              </span>
-              In stock
-              <input
-                type="checkbox"
-                checked={inStockOnly}
-                onChange={(event) => setInStockOnly(event.target.checked)}
-                className="sr-only"
-              />
-            </label>
+                <span
+                  className={cn(
+                    "grid size-4 place-items-center rounded-[5px] border transition-colors duration-150",
+                    inStockOnly ? "border-brand bg-brand" : "border-line-strong bg-surface"
+                  )}
+                >
+                  {inStockOnly && (
+                    <svg className="anim-tick" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  )}
+                </span>
+                In stock
+                <input
+                  type="checkbox"
+                  checked={inStockOnly}
+                  onChange={(event) => setInStockOnly(event.target.checked)}
+                  className="sr-only"
+                />
+              </label>
+            </div>
           </div>
+
+          <p className="mt-2 hidden text-[12px] text-ink-tertiary tnum sm:block">
+            {loading ? (
+              "Loading catalogue…"
+            ) : (
+              <>
+                {visible.length} {visible.length === 1 ? "service" : "services"}
+                {" · "}
+                {visible.reduce((sum, s) => sum + s.plans.length, 0)} plans
+              </>
+            )}
+          </p>
         </div>
 
         {/* Categories */}
         {categories.length > 2 && (
-          <nav className="flex flex-wrap gap-2 py-5" aria-label="Categories">
+          <nav className="flex flex-wrap gap-2 pt-5" aria-label="Categories">
             {categories.map((entry) => {
               const active = activeCategory === entry;
               return (
@@ -276,16 +290,6 @@ export default function Storefront() {
             }
           />
         ) : (
-          <>
-            <div className="flex items-baseline justify-between gap-3 pt-7">
-              <h2 className="text-[15px] font-semibold text-ink">
-                {activeCategory === "All" ? "All services" : activeCategory}
-              </h2>
-              <p className="text-[12px] text-ink-tertiary tnum">
-                {visible.length} {visible.length === 1 ? "service" : "services"}
-              </p>
-            </div>
-
             <div
               className="stagger mt-4 grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3"
               role="list"
@@ -300,13 +304,12 @@ export default function Storefront() {
                 />
               ))}
             </div>
-          </>
         )}
 
         {/* How ordering works — truthful, and it answers the first question
             every customer of a WhatsApp store has. */}
         {!loading && !error && visible.length > 0 && (
-          <section className="mt-14 border-t border-line pt-9">
+          <section id="how-ordering" className="mt-14 scroll-mt-24 border-t border-line pt-9">
             <h2 className="text-[17px] font-semibold tracking-[-0.02em] text-ink">
               How ordering works
             </h2>

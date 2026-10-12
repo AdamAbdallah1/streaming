@@ -10,6 +10,7 @@ export default function Money({
   currency = "USD",
   wasAmount,
   emphasis,
+  strong,
   className,
   ...props
 }) {
@@ -29,7 +30,11 @@ export default function Money({
         </span>
       )}
       <span
-        className={emphasis ? "font-semibold tracking-[-0.02em]" : "font-medium"}
+        className={
+          emphasis || strong
+            ? "font-semibold tracking-[-0.02em]"
+            : "font-medium"
+        }
       >
         {formatMoney(amount, currency)}
       </span>

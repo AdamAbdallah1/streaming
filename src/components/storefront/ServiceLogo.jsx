@@ -106,7 +106,7 @@ export function ServiceLogoHero({ service, className }) {
       <Monogram
         name={service?.name}
         className={cn(
-          "size-20 shrink-0 rounded-[var(--radius-xl)] text-[30px] sm:size-24",
+          "size-24 shrink-0 rounded-[var(--radius-xl)] text-[30px]",
           className
         )}
       />
@@ -116,7 +116,7 @@ export function ServiceLogoHero({ service, className }) {
   return (
     <div
       className={cn(
-        "grid size-20 shrink-0 place-items-center rounded-[var(--radius-xl)] border border-line p-3.5 sm:size-24",
+        "grid size-24 shrink-0 place-items-center rounded-[var(--radius-xl)] border border-line p-4",
         className
       )}
       style={{ backgroundColor: brandWash(brand) }}
