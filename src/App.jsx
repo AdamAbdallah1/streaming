@@ -1,21 +1,30 @@
+import { Suspense, lazy, useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import { useState } from "react";
 import ErrorBoundary from "./components/ui/ErrorBoundary";
 import Storefront from "./pages/Storefront";
-import Product from "./pages/Product";
-import Cart from "./pages/Cart";
-import Checkout from "./pages/Checkout";
-import OrderStatus from "./pages/OrderStatus";
-import Login from "./pages/Login";
-import Admin from "./pages/Admin";
 import { findService } from "./lib/catalog";
 import { useCatalog } from "./hooks/useCatalog";
 import { ROUTES, STORAGE_KEYS } from "./lib/config";
+
+const Product = lazy(() => import("./pages/Product"));
+const Cart = lazy(() => import("./pages/Cart"));
+const Checkout = lazy(() => import("./pages/Checkout"));
+const OrderStatus = lazy(() => import("./pages/OrderStatus"));
+const Login = lazy(() => import("./pages/Login"));
+const Admin = lazy(() => import("./pages/Admin"));
 
 function readStoredAuth() {
   return (
     localStorage.getItem(STORAGE_KEYS.adminAuth) === "true" ||
     sessionStorage.getItem(STORAGE_KEYS.adminAuth) === "true"
+  );
+}
+
+function RouteFallback() {
+  return (
+    <div className="flex min-h-[50vh] items-center justify-center">
+      <div className="size-8 animate-spin rounded-full border-2 border-brand border-t-transparent" />
+    </div>
   );
 }
 
@@ -28,17 +37,54 @@ export default function App() {
         <Route path="/" element={<Navigate to="/prices" replace />} />
 
         <Route path="/prices" element={<Storefront />} />
-        <Route path="/prices/product/:slug" element={<Product />} />
-        <Route path="/prices/cart" element={<Cart />} />
-        <Route path="/prices/checkout" element={<Checkout />} />
-        <Route path="/prices/order/:reference" element={<OrderStatus />} />
+        <Route
+          path="/prices/product/:slug"
+          element={
+            <Suspense fallback={<RouteFallback />}>
+              <Product />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/prices/cart"
+          element={
+            <Suspense fallback={<RouteFallback />}>
+              <Cart />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/prices/checkout"
+          element={
+            <Suspense fallback={<RouteFallback />}>
+              <Checkout />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/prices/order/:reference"
+          element={
+            <Suspense fallback={<RouteFallback />}>
+              <OrderStatus />
+            </Suspense>
+          }
+        />
 
-        <Route path="/login" element={<Login setIsAuthed={setIsAuthed} />} />
+        <Route
+          path="/login"
+          element={
+            <Suspense fallback={<RouteFallback />}>
+              <Login setIsAuthed={setIsAuthed} />
+            </Suspense>
+          }
+        />
         <Route
           path="/admin"
           element={
             isAuthed ? (
-              <Admin setIsAuthed={setIsAuthed} />
+              <Suspense fallback={<RouteFallback />}>
+                <Admin setIsAuthed={setIsAuthed} />
+              </Suspense>
             ) : (
               <Navigate to="/login" replace />
             )

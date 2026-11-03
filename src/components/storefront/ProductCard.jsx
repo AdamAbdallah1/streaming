@@ -83,7 +83,7 @@ export default function ProductCard({ service, currency, index = 0 }) {
         )}
         style={
           plateColor
-            ? { backgroundColor: `color-mix(in srgb, ${plateColor} 7%, #ffffff)` }
+            ? { backgroundColor: `color-mix(in srgb, ${plateColor} 18%, #ffffff)` }
             : undefined
         }
       >

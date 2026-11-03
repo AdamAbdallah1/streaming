@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { FiSearch } from "react-icons/fi";
+import { FiSearch, FiZap } from "react-icons/fi";
 import Header from "../components/storefront/Header";
 import ProductCard from "../components/storefront/ProductCard";
 import StoreLayout from "../components/storefront/StoreLayout";
@@ -12,6 +12,7 @@ import { useCurrency } from "../lib/currency";
 import { cn } from "../lib/cn";
 import { findService, serviceMinPrice, slugify } from "../lib/catalog";
 import { BUSINESS, ROUTES } from "../lib/config";
+import netflixLogo from "../assets/logos/netflix.svg";
 
 const SORTS = [
   { value: "name", label: "Name (A–Z)" },
@@ -26,7 +27,7 @@ function sortServices(services, sort) {
     case "price-asc":
       return list.sort((a, b) => (serviceMinPrice(a) ?? Infinity) - (serviceMinPrice(b) ?? Infinity));
     case "price-desc":
-      return list.sort((a, b) => (serviceMinPrice(b) ?? -Infinity) - (serviceMinPrice(a) ?? Infinity));
+      return list.sort((a, b) => (serviceMinPrice(b) ?? -Infinity) - (serviceMinPrice(a) ?? -Infinity));
     case "updated":
       return list.sort((a, b) => (b.updatedAt?.getTime() ?? 0) - (a.updatedAt?.getTime() ?? 0));
     default:
@@ -50,7 +51,6 @@ export default function Storefront() {
     [services]
   );
 
-  // Search lives in the URL so it can be shared and reached from any page.
   const changeSearch = (value) => {
     setSearch(value);
     const next = new URLSearchParams(params);
@@ -59,7 +59,6 @@ export default function Storefront() {
     setParams(next, { replace: true });
   };
 
-  // Legacy deep links: /prices?s=netflix
   const legacyService = params.get("s");
   useEffect(() => {
     if (!legacyService || !services.length) return;
@@ -68,7 +67,6 @@ export default function Storefront() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [legacyService, services]);
 
-  // Legacy category deep links: ?c=streaming
   const requestedCategory = params.get("c");
   const activeCategory = useMemo(() => {
     if (!requestedCategory) return category;
@@ -116,49 +114,58 @@ export default function Storefront() {
     <StoreLayout>
       <Header search={search} onSearchChange={changeSearch} services={services} />
 
-      <main id="main" className="mx-auto max-w-[76rem] px-4 pb-4 pt-8 sm:pt-10 lg:px-8 lg:pt-12">
-        {/* Hero: the title is the composition. Utility link sits right,
-            Apple-style — out of the way, useful, not decorative. */}
-        <div className="stagger max-w-3xl">
-          <p className="label-xs text-ink-tertiary">Cedars Tech · Digital subscriptions</p>
-          <h1 className="mt-3 text-[36px] leading-[1.04] tracking-[-0.04em] text-ink sm:text-[52px] lg:text-[60px]">
-            Your favourite streaming services.{" "}
-            <span className="text-ink-tertiary">One simple order.</span>
-          </h1>
-          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <p className="max-w-lg text-[14px] leading-6 text-ink-secondary sm:text-[15px]">
-              Choose your subscription, pay with {BUSINESS.whish.label}, and
-              confirm your order with us on WhatsApp.
-            </p>
-            <a
-              href="#how-ordering"
-              className="hidden shrink-0 text-[13px] font-medium text-ink-secondary underline decoration-line-strong underline-offset-4 transition-colors hover:text-ink sm:block"
-            >
-              How ordering works ↓
-            </a>
+      <main id="main" className="mx-auto max-w-[76rem] px-4 pb-8 pt-6 lg:px-8 lg:pt-8">
+        {/* Professional Hero Section — Colorful Theme Blended with Netflix Accent */}
+        <div className="relative overflow-hidden rounded-[var(--radius-xl)] border border-line bg-gradient-to-br from-lavender via-canvas to-coral-soft p-6 sm:p-10 lg:p-12 shadow-card">
+          {/* Subtle Netflix Crimson Light Glow */}
+          <div className="absolute right-0 top-1/2 -translate-y-1/2 h-64 w-64 rounded-full bg-red-600/10 blur-3xl pointer-events-none" />
+
+          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
+            {/* Left Content */}
+            <div className="max-w-2xl">
+              <div className="inline-flex items-center gap-2 rounded-[var(--radius-pill)] bg-brand-soft px-3.5 py-1 text-[12px] font-semibold text-brand">
+                <FiZap size={13} className="shrink-0" />
+                Cedars Tech Official Subscriptions Storefront
+              </div>
+
+              <h1 className="mt-4 text-[28px] font-bold tracking-tight text-ink sm:text-[38px] lg:text-[42px]">
+                Premium software & streaming, made effortless.
+              </h1>
+
+              <p className="mt-3 text-[14px] leading-relaxed text-ink-secondary sm:text-[15px]">
+                Get instant access to top-tier entertainment, AI assistants, and creative professional tools. Pay securely via local Whish transfer and get verified instantly on WhatsApp.
+              </p>
+
+              <div className="mt-6 flex flex-wrap items-center gap-4 sm:gap-6 pt-5 border-t border-line text-[13px] font-medium text-ink-secondary">
+                <div className="flex items-center gap-1.5">
+                  <strong className="text-ink tnum">{services.length || 16}</strong> Services
+                </div>
+                <span>·</span>
+                <div className="flex items-center gap-1.5">
+                  <strong className="text-ink tnum">{totalPlans || 50}</strong> Active Plans
+                </div>
+                <span>·</span>
+                <div className="text-brand font-semibold">Whish & WhatsApp</div>
+              </div>
+            </div>
+
+            {/* Right Side: Direct Netflix Logo SVG */}
+            <div className="flex shrink-0 items-center justify-center lg:justify-end lg:pr-6">
+              <img
+                src={netflixLogo}
+                alt="Netflix"
+                className="h-14 w-auto object-contain drop-shadow-[0_8px_16px_rgba(229,9,20,0.25)] transition-transform duration-300 hover:scale-105 sm:h-20"
+              />
+            </div>
           </div>
-          <p className="mt-4 text-[13px] text-ink-tertiary tnum">
-            {loading ? (
-              "Loading catalogue…"
-            ) : (
-              <>
-                {services.length} {services.length === 1 ? "service" : "services"} ·{" "}
-                {totalPlans} {totalPlans === 1 ? "plan" : "plans"} · {BUSINESS.whish.label} available
-              </>
-            )}
-          </p>
         </div>
 
-        {/* Catalogue toolbar: section heading and controls read as one row. */}
-        <div className="mt-8 border-t border-line pt-5 sm:mt-10">
+        {/* Catalogue toolbar */}
+        <div className="mt-6 border-t border-line pt-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-baseline justify-between gap-3 sm:justify-start">
-              <h2 className="text-[19px] font-semibold tracking-[-0.02em] text-ink">
-                {activeCategory === "All" ? (
-                  <>All services. <span className="text-ink-tertiary">Take your pick.</span></>
-                ) : (
-                  activeCategory
-                )}
+              <h2 className="text-[15px] font-semibold text-ink">
+                {activeCategory === "All" ? "All services" : activeCategory}
               </h2>
               <p className="text-[12px] text-ink-tertiary tnum sm:hidden">
                 {loading ? "…" : `${visible.length} ${visible.length === 1 ? "service" : "services"}`}
@@ -172,7 +179,7 @@ export default function Storefront() {
                   id="sort"
                   value={sort}
                   onChange={(event) => setSort(event.target.value)}
-                  className="h-10 w-full rounded-[var(--radius-md)] border border-line bg-surface pl-3.5 text-[13px] font-medium text-ink transition-colors duration-150 hover:border-line-strong focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/15 sm:w-[200px]"
+                  className="h-10 w-full rounded-[var(--radius-md)] border border-line bg-surface pl-3.5 text-[13px] font-medium text-ink transition-colors duration-150 hover:border-brand focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/15 sm:w-[200px]"
                 >
                   {SORTS.map((option) => (
                     <option key={option.value} value={option.value}>
@@ -187,7 +194,7 @@ export default function Storefront() {
                   "flex h-10 shrink-0 cursor-pointer select-none items-center gap-2.5 rounded-[var(--radius-md)] border px-3.5 text-[13px] font-medium transition-colors duration-150",
                   inStockOnly
                     ? "border-brand bg-brand-soft text-brand-strong"
-                    : "border-line bg-surface text-ink-secondary hover:border-line-strong"
+                    : "border-line bg-surface text-ink-secondary hover:border-brand hover:text-brand"
                 )}
               >
                 <span
@@ -244,10 +251,10 @@ export default function Storefront() {
                     setParams(next, { replace: true });
                   }}
                   className={cn(
-                    "h-8 rounded-[var(--radius-pill)] border px-3.5 text-[13px] font-medium transition-all duration-150 ease-out active:scale-[0.97]",
+                    "h-9 rounded-[var(--radius-pill)] border px-4 text-[13px] font-medium transition-all duration-150 ease-out active:scale-[0.97]",
                     active
-                      ? "border-ink bg-ink text-canvas"
-                      : "border-line bg-surface text-ink-secondary hover:border-line-strong hover:text-ink"
+                      ? "border-brand bg-brand text-white shadow-sm"
+                      : "border-line bg-surface text-ink-secondary hover:border-brand hover:text-brand"
                   )}
                 >
                   {entry}
@@ -306,8 +313,7 @@ export default function Storefront() {
             </div>
         )}
 
-        {/* How ordering works — truthful, and it answers the first question
-            every customer of a WhatsApp store has. */}
+        {/* How ordering works */}
         {!loading && !error && visible.length > 0 && (
           <section id="how-ordering" className="mt-14 scroll-mt-24 border-t border-line pt-9">
             <h2 className="text-[17px] font-semibold tracking-[-0.02em] text-ink">
@@ -332,7 +338,7 @@ export default function Storefront() {
                 },
               ].map((item) => (
                 <li key={item.step} className="flex gap-3.5">
-                  <span className="label-xs mt-0.5 shrink-0 text-ink-tertiary tnum">
+                  <span className="label-xs mt-0.5 shrink-0 text-brand tnum">
                     {item.step}
                   </span>
                   <div>

@@ -5,7 +5,7 @@
     "source": "File:Netflix logo.svg",
     "commonsPage": "https://commons.wikimedia.org/wiki/File%3ANetflix%20logo.svg",
     "license": "Public domain",
-    "artist": "TM/®Netflix Inc.",
+    "artist": "TM/\u00aeNetflix Inc.",
     "bytes": 7146
   },
   {
@@ -42,6 +42,79 @@
     "commonsPage": "https://commons.wikimedia.org/wiki/File%3AAnghami%20logo.png",
     "license": "CC BY-SA 4.0",
     "artist": "V.M.A 87",
-    "bytes": 588293
+    "bytes": 120180
+  },
+  {
+    "slug": "auto-desk",
+    "file": "auto-desk.svg",
+    "source": "Source unverified",
+    "license": "Unverified",
+    "artist": "Unknown",
+    "bytes": 1808
+  },
+  {
+    "slug": "canva-plus",
+    "file": "canva-plus.svg",
+    "source": "Source unverified",
+    "license": "Unverified",
+    "artist": "Unknown",
+    "bytes": 15727
+  },
+  {
+    "slug": "capcut",
+    "file": "capcut.png",
+    "source": "Source unverified",
+    "license": "Unverified",
+    "artist": "Unknown",
+    "bytes": 11250,
+    "note": "Raster PNG (not SVG). No suitable standalone SVG found from reputable sources. Used as provided per project requirement."
+  },
+  {
+    "slug": "chatgpt-plus",
+    "file": "chatgpt-plus.svg",
+    "source": "Source unverified",
+    "license": "Unverified",
+    "artist": "Unknown",
+    "bytes": 2614
+  },
+  {
+    "slug": "duolingo",
+    "file": "duolingo.svg",
+    "source": "Source unverified",
+    "license": "Unverified",
+    "artist": "Unknown",
+    "bytes": 2681
+  },
+  {
+    "slug": "google-gemini",
+    "file": "google-gemini.svg",
+    "source": "lobe-icons (https://github.com/lobehub/lobe-icons)",
+    "license": "MIT",
+    "artist": "LobeHub",
+    "bytes": 2836
+  },
+  {
+    "slug": "surf-shark",
+    "file": "surf-shark.svg",
+    "source": "Source unverified",
+    "license": "Unverified",
+    "artist": "Unknown",
+    "bytes": 4348
+  },
+  {
+    "slug": "udemy",
+    "file": "udemy.svg",
+    "source": "Source unverified",
+    "license": "Unverified",
+    "artist": "Unknown",
+    "bytes": 3074
+  },
+  {
+    "slug": "youtube-premium",
+    "file": "youtube-premium.svg",
+    "source": "Source unverified",
+    "license": "Unverified",
+    "artist": "Unknown",
+    "bytes": 5753
   }
 ]

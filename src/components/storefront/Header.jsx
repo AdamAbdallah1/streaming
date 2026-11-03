@@ -1,13 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  FiChevronDown,
-  FiMoon,
-  FiSearch,
-  FiShoppingBag,
-  FiSun,
-  FiX,
-} from "react-icons/fi";
+import { FiChevronDown, FiMoon, FiSearch, FiShoppingBag, FiSun, FiX } from "react-icons/fi";
 import Logo from "../../assets/logo-black.png";
 import { BUSINESS, CURRENCIES, ROUTES } from "../../lib/config";
 import { resolveCart, useCart } from "../../lib/cart";
@@ -30,7 +23,6 @@ export default function Header({ search, onSearchChange, services }) {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Inline filtering on the catalogue, search-and-go everywhere else.
   const [localSearch, setLocalSearch] = useState("");
 
   const submitSearch = (event) => {
@@ -60,77 +52,60 @@ export default function Header({ search, onSearchChange, services }) {
   return (
     <header
       className={cn(
-        "sticky top-0 z-40 border-b bg-surface",
-        scrolled ? "border-line shadow-card" : "border-transparent"
+        "sticky top-0 z-40 border-b bg-surface/95 backdrop-blur-xl transition-shadow duration-200",
+        scrolled ? "border-brand/20 shadow-card" : "border-transparent"
       )}
     >
-      {/* ── Desktop: one quiet row ─────────────────────────────── */}
-      <div className="mx-auto hidden h-16 max-w-[76rem] items-center gap-8 px-8 md:flex">
+      {/* ── Desktop: brand · search · utilities ──────────────── */}
+      <div className="mx-auto hidden h-16 max-w-[76rem] items-center gap-6 px-8 md:flex">
         <BrandLockup />
 
         <div className="w-full max-w-md flex-1">{searchField}</div>
 
-        <div className="ml-auto flex items-center gap-1.5">
+        <div className="ml-auto flex items-center gap-1">
           <CurrencyText currency={currency} onChange={setCurrency} />
           <ThemeButton isDark={isDark} onToggle={toggle} />
           <CartButton count={count} onOpen={() => navigate(ROUTES.cart)} />
         </div>
       </div>
 
-      {/* ── Mobile: brand row, then search row ─────────────────── */}
-      <div className="px-4 pb-3 pt-2 md:hidden">
-        <div className="flex h-11 items-center justify-between gap-2">
+      {/* ── Mobile: brand row, then search row ───────────────── */}
+      <div className="px-4 pb-2.5 pt-2.5 md:hidden">
+        <div className="flex h-10 items-center justify-between gap-2">
           <BrandLockup compact />
-          <div className="flex items-center gap-0.5">
+          <div className="flex shrink-0 items-center gap-0.5">
             <CurrencyText currency={currency} onChange={setCurrency} />
             <CartButton count={count} onOpen={() => navigate(ROUTES.cart)} />
           </div>
         </div>
 
-        <div className="mt-1.5 flex items-center gap-2">
+        <div className="mt-2 flex items-center gap-2">
           <div className="min-w-0 flex-1">{searchField}</div>
-          <ThemeButton
-            isDark={isDark}
-            onToggle={toggle}
-            bordered
-          />
+          <ThemeButton isDark={isDark} onToggle={toggle} bordered />
         </div>
       </div>
     </header>
   );
 }
 
-/** Brand lockup: cedar mark + wordmark. Always shows the name. */
 function BrandLockup({ compact = false }) {
   return (
     <Link
       to={ROUTES.storefront}
       aria-label={`${BUSINESS.name} home`}
-      className="flex min-h-[40px] min-w-[40px] shrink-0 items-center gap-2.5 rounded-[var(--radius-sm)]"
+      className="flex shrink-0 items-center gap-2.5 rounded-[var(--radius-sm)]"
     >
-      <img
-        src={Logo}
-        alt=""
-        width={compact ? 24 : 28}
-        height={compact ? 24 : 28}
-        className={compact ? "size-6" : "size-7"}
-      />
+      <img src={Logo} alt="" width={compact ? 24 : 28} height={compact ? 24 : 28} className={compact ? "size-6" : "size-7"} />
       <span className="flex flex-col leading-none">
-        <span
-          className={cn(
-            "font-semibold tracking-[-0.02em] text-ink",
-            compact ? "text-[15px]" : "text-[16px]"
-          )}
-        >
+        <span className={cn("font-bold tracking-[-0.02em] text-ink", compact ? "text-[14px]" : "text-[16px]")}>
           {BUSINESS.name}
         </span>
-        <span className="label-xs mt-[3px] text-ink-tertiary">Streaming</span>
+        <span className="label-xs mt-[3px] text-brand">Streaming</span>
       </span>
     </Link>
   );
 }
 
-/** Currency as quiet text, not a pill. Still a 40px target. */
 function CurrencyText({ currency, onChange }) {
   const other = CURRENCIES.find((option) => option.code !== currency);
   return (
@@ -139,7 +114,7 @@ function CurrencyText({ currency, onChange }) {
       onClick={() => onChange(other.code)}
       aria-label={`Currency, currently ${currency}. Switch to ${other.code}.`}
       title={`Switch to ${other.code}`}
-      className="flex h-10 min-w-[40px] items-center gap-1 rounded-[var(--radius-sm)] px-2 text-[13px] font-medium text-ink-secondary transition-colors duration-150 hover:text-ink"
+      className="flex h-10 min-w-[40px] items-center gap-1 rounded-[var(--radius-sm)] px-2 text-[13px] font-semibold text-ink-secondary transition-colors duration-150 hover:text-brand"
     >
       <span className="tnum">{currency}</span>
       <FiChevronDown size={12} className="text-ink-tertiary" aria-hidden="true" />
@@ -154,7 +129,7 @@ function ThemeButton({ isDark, onToggle, bordered = false }) {
       onClick={onToggle}
       aria-label={isDark ? "Switch to light theme" : "Switch to dark theme"}
       className={cn(
-        "grid size-10 shrink-0 place-items-center rounded-[var(--radius-sm)] text-ink-secondary transition-colors duration-150 hover:bg-muted hover:text-ink",
+        "grid size-10 shrink-0 place-items-center rounded-[var(--radius-sm)] text-ink-secondary transition-colors duration-150 hover:bg-brand-soft hover:text-brand",
         bordered && "rounded-[var(--radius-md)] border border-line bg-surface"
       )}
     >
@@ -169,13 +144,13 @@ function CartButton({ count, onOpen }) {
       type="button"
       onClick={onOpen}
       aria-label={`Cart, ${count} ${count === 1 ? "item" : "items"}`}
-      className="relative grid size-10 shrink-0 place-items-center rounded-[var(--radius-sm)] text-ink transition-colors duration-150 hover:bg-muted"
+      className="relative grid size-10 shrink-0 place-items-center rounded-[var(--radius-sm)] text-ink transition-colors duration-150 hover:bg-brand-soft hover:text-brand"
     >
       <FiShoppingBag size={19} />
       {count > 0 && (
         <span
           key={count}
-          className="anim-pop anim-ring absolute right-0.5 top-0.5 grid min-w-[17px] place-items-center rounded-[var(--radius-pill)] bg-brand px-1 text-[10px] font-semibold leading-[15px] text-white tnum"
+          className="anim-pop anim-ring absolute right-0.5 top-0.5 grid min-w-[17px] place-items-center rounded-[var(--radius-pill)] bg-coral px-1 text-[10px] font-semibold leading-[15px] text-white tnum"
         >
           {count}
         </span>
@@ -199,9 +174,9 @@ function SearchInput({ id, value, onChange, onClear }) {
         placeholder="Search subscriptions"
         aria-label="Search subscriptions"
         className={cn(
-          "h-10 w-full rounded-[var(--radius-pill)] border border-line bg-canvas pl-10 pr-9",
+          "h-10 w-full rounded-[var(--radius-pill)] border border-line bg-surface pl-10 pr-9",
           "text-[14px] text-ink transition-colors duration-150 placeholder:text-ink-tertiary",
-          "hover:border-line-strong focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/15",
+          "hover:border-brand focus:border-brand focus:bg-surface focus:outline-none focus:ring-4 focus:ring-brand/15",
           "[&::-webkit-search-cancel-button]:hidden"
         )}
       />
@@ -210,7 +185,7 @@ function SearchInput({ id, value, onChange, onClear }) {
           type="button"
           onClick={onClear}
           aria-label="Clear search"
-          className="absolute right-2.5 top-1/2 grid size-6 -translate-y-1/2 place-items-center rounded-full text-ink-tertiary transition-colors hover:bg-muted hover:text-ink"
+          className="absolute right-2.5 top-1/2 grid size-6 -translate-y-1/2 place-items-center rounded-full text-ink-tertiary transition-colors hover:bg-brand-soft hover:text-brand"
         >
           <FiX size={14} />
         </button>

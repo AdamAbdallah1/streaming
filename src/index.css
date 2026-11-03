@@ -2,88 +2,128 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+@keyframes floatAnimation {
+  0%, 100% {
+    transform: translateY(0px) rotate(var(--rot, 0deg));
+  }
+  50% {
+    transform: translateY(-8px) rotate(calc(var(--rot, 0deg) + 2deg));
+  }
+}
+
+.anim-float {
+  animation: floatAnimation 6s ease-in-out infinite;
+}
+
 /* ==========================================================================
-   Cedars Tech Streaming — design system
-   A warm, gallery-like commerce surface that lets each service's own brand
-   artwork supply the colour. Chrome stays quiet; the marks carry the energy.
+   Cedars Tech Streaming — colourful, friendly marketplace design system
+
+   Palette:
+     Warm cream  #FFF9F0   canvas
+     Deep purple #6338C8   primary action
+     Bright purple #8156E8 accent / hover
+     Coral       #FF786B   entertainment
+     Warm orange #FFB45C   creative tools
+     Soft lavender #EEE7FF  soft surface / AI
+     Mint        #DDF5E9   education / success
+     Dark text   #29233A   ink
    ========================================================================== */
 
 :root {
-  /* Surfaces — warm paper, not clinical grey */
-  --canvas: #f4f2ec;
+  /* Surfaces */
+  --canvas: #fff9f0;
   --surface: #ffffff;
-  --surface-sunken: #ece9e1;
-  --surface-muted: #e6e2d8;
-  --surface-inset: #f8f6f1;
+  --surface-sunken: #fff3e6;
+  --surface-muted: #f6f0e6;
+  --surface-inset: #fef8f0;
 
   /* Lines */
-  --line: #e0dcd1;
-  --line-strong: #cdc7b8;
-  --line-hairline: #eae6dc;
+  --line: #e8e0d4;
+  --line-strong: #d4ccc0;
+  --line-hairline: #f0ebe2;
 
-  /* Type — warm near-black */
-  --ink: #16150f;
-  --ink-secondary: #56544a;
-  --ink-tertiary: #8a877a;
+  /* Type */
+  --ink: #29233a;
+  --ink-secondary: #5a5470;
+  --ink-tertiary: #8a84a0;
   --ink-inverse: #ffffff;
 
-  /* Cedar accent — used only for action and signal */
-  --brand: #1b44d4;
-  --brand-strong: #1636ad;
-  --brand-press: #122c8c;
-  --brand-soft: #eef2fd;
-  --brand-soft-strong: #dde5fb;
-  --brand-line: #c2d0f6;
+  /* Brand — deep purple primary */
+  --brand: #6338c8;
+  --brand-strong: #5528b8;
+  --brand-press: #4a1fa8;
+  --brand-soft: #eee7ff;
+  --brand-soft-strong: #e0d8ff;
+  --brand-line: #d0c4f0;
+
+  /* Category accents */
+  --coral: #ff786b;
+  --coral-soft: #fff0ee;
+  --orange: #ffb45c;
+  --orange-soft: #fff5e6;
+  --mint: #ddf5e9;
+  --mint-strong: #1a8a5a;
+  --lavender: #eee7ff;
+  --lavender-strong: #6338c8;
 
   /* Status */
-  --positive: #17703f;
+  --positive: #1a8a5a;
   --positive-soft: #ecf8f0;
   --positive-line: #bfe6cd;
-  --warning: #96560a;
+  --warning: #b8730a;
   --warning-soft: #fdf6e8;
   --warning-line: #f0dcaf;
-  --danger: #b3261e;
-  --danger-soft: #fdf0ef;
+  --danger: #c2261e;
+  --danger-soft: #fef3f3;
   --danger-line: #f2cecb;
 
-  /* Elevation — restrained, architectural */
-  --shadow-card: 0 1px 2px rgb(22 21 15 / 0.05);
-  --shadow-raised: 0 1px 3px rgb(22 21 15 / 0.06), 0 10px 24px -10px rgb(22 21 15 / 0.14);
-  --shadow-pop: 0 2px 6px rgb(22 21 15 / 0.07), 0 24px 56px -18px rgb(22 21 15 / 0.22);
-  --shadow-bar: 0 -1px 0 var(--line), 0 -14px 32px -18px rgb(22 21 15 / 0.16);
+  /* Elevation */
+  --shadow-card: 0 2px 8px rgb(41 35 58 / 0.06);
+  --shadow-raised: 0 4px 16px rgb(41 35 58 / 0.08), 0 12px 32px -8px rgb(41 35 58 / 0.12);
+  --shadow-pop: 0 8px 24px rgb(41 35 58 / 0.10), 0 24px 56px -16px rgb(41 35 58 / 0.18);
+  --shadow-bar: 0 -1px 0 var(--line), 0 -12px 28px -16px rgb(41 35 58 / 0.12);
 
   /* Radii */
-  --radius-sm: 7px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
-  --radius-xl: 18px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
   --radius-pill: 999px;
 
   --header-h: 64px;
 }
 
 .dark {
-  --canvas: #100f0c;
-  --surface: #191813;
-  --surface-sunken: #14130f;
-  --surface-muted: #221f19;
-  --surface-inset: #1c1a15;
+  --canvas: #1a1824;
+  --surface: #252232;
+  --surface-sunken: #1e1b28;
+  --surface-muted: #2f2b3d;
+  --surface-inset: #221f2e;
 
-  --line: #2c2921;
-  --line-strong: #3d392e;
-  --line-hairline: #24211a;
+  --line: #3a3650;
+  --line-strong: #4a4560;
+  --line-hairline: #2e2b3c;
 
-  --ink: #f7f4ec;
-  --ink-secondary: #b3ada0;
-  --ink-tertiary: #857f72;
-  --ink-inverse: #16150f;
+  --ink: #f5f2fa;
+  --ink-secondary: #b8b0cc;
+  --ink-tertiary: #8a84a0;
+  --ink-inverse: #1a1824;
 
-  --brand: #5b86f0;
-  --brand-strong: #4570e8;
-  --brand-press: #3060dd;
-  --brand-soft: #18203a;
-  --brand-soft-strong: #1e2a4a;
-  --brand-line: #2c3c66;
+  --brand: #8156e8;
+  --brand-strong: #9a72f0;
+  --brand-press: #6338c8;
+  --brand-soft: #2a2240;
+  --brand-soft-strong: #352d50;
+  --brand-line: #4a3d6a;
+
+  --coral: #ff8a7e;
+  --coral-soft: #3a2220;
+  --orange: #ffc078;
+  --orange-soft: #3a2e18;
+  --mint: #2a3e32;
+  --mint-strong: #62d69a;
+  --lavender: #2a2240;
+  --lavender-strong: #8156e8;
 
   --positive: #62d69a;
   --positive-soft: #12291d;
@@ -95,27 +135,34 @@
   --danger-soft: #2c1614;
   --danger-line: #6b2a25;
 
-  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.5);
-  --shadow-raised: 0 1px 3px rgb(0 0 0 / 0.5), 0 10px 24px -10px rgb(0 0 0 / 0.6);
-  --shadow-pop: 0 2px 6px rgb(0 0 0 / 0.5), 0 24px 56px -18px rgb(0 0 0 / 0.7);
-  --shadow-bar: 0 -1px 0 var(--line), 0 -14px 32px -18px rgb(0 0 0 / 0.6);
+  --shadow-card: 0 2px 8px rgb(0 0 0 / 0.3);
+  --shadow-raised: 0 4px 16px rgb(0 0 0 / 0.35), 0 12px 32px -8px rgb(0 0 0 / 0.4);
+  --shadow-pop: 0 8px 24px rgb(0 0 0 / 0.35), 0 24px 56px -16px rgb(0 0 0 / 0.5);
+  --shadow-bar: 0 -1px 0 var(--line), 0 -14px 32px -18px rgb(0 0 0 / 0.4);
 }
 
 @theme {
-  --color-brand-50: #eef2fd;
-  --color-brand-100: #dde5fb;
-  --color-brand-200: #c2d0f6;
-  --color-brand-300: #9bb2f0;
-  --color-brand-400: #7390e9;
-  --color-brand-500: #4f74e2;
-  --color-brand-600: #2f5ad9;
-  --color-brand-700: #1b44d4;
-  --color-brand-800: #1636ad;
-  --color-brand-900: #122c8c;
+  --color-brand-50: #f5f0ff;
+  --color-brand-100: #eee7ff;
+  --color-brand-200: #ddd0ff;
+  --color-brand-300: #c4a8ff;
+  --color-brand-400: #a880f5;
+  --color-brand-500: #8156e8;
+  --color-brand-600: #6338c8;
+  --color-brand-700: #5528b8;
+  --color-brand-800: #4a1fa8;
+  --color-brand-900: #3d1890;
 
-  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI Variable Text", "Segoe UI", Roboto, "Helvetica Neue", Arial,
-    "Noto Sans", sans-serif;
+  --color-coral: #ff786b;
+  --color-coral-soft: #fff0ee;
+  --color-orange: #ffb45c;
+  --color-orange-soft: #fff5e6;
+  --color-mint: #ddf5e9;
+  --color-mint-strong: #1a8a5a;
+  --color-lavender: #eee7ff;
+
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
   --radius-card: var(--radius-lg);
 }
@@ -139,6 +186,14 @@
   --color-brand-soft: var(--brand-soft);
   --color-brand-soft-strong: var(--brand-soft-strong);
   --color-brand-line: var(--brand-line);
+  --color-coral: var(--coral);
+  --color-coral-soft: var(--coral-soft);
+  --color-orange: var(--orange);
+  --color-orange-soft: var(--orange-soft);
+  --color-mint: var(--mint);
+  --color-mint-strong: var(--mint-strong);
+  --color-lavender: var(--lavender);
+  --color-lavender-strong: var(--lavender-strong);
   --color-positive: var(--positive);
   --color-positive-soft: var(--positive-soft);
   --color-positive-line: var(--positive-line);
@@ -170,10 +225,9 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* One optical treatment for every heading. */
   h1, h2, h3 {
-    letter-spacing: -0.028em;
-    font-weight: 600;
+    letter-spacing: -0.025em;
+    font-weight: 700;
     text-wrap: balance;
   }
 
@@ -205,14 +259,12 @@
   select {
     appearance: none;
     -webkit-appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238a877a' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238a84a0' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 0.75rem center;
     padding-right: 2.25rem;
   }
 }
-
-/* ---------------------------------------------------------------- utilities */
 
 @utility tnum {
   font-variant-numeric: tabular-nums;
@@ -226,7 +278,6 @@
   }
 }
 
-/** Uppercase, tracked micro-label used for metadata. */
 @utility label-xs {
   font-size: 0.6875rem;
   line-height: 1.3;
@@ -235,66 +286,87 @@
   text-transform: uppercase;
 }
 
-/** The large display figure used for prices and page titles. */
 @utility display-price {
-  font-weight: 650;
-  letter-spacing: -0.035em;
+  font-weight: 800;
+  letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum" 1;
 }
 
 /* ==========================================================================
-   Motion language — "quiet response"
-
-   Durations, easings and keyframes live here so every transition in the
-   product shares one rhythm. Only transform and opacity are animated so
-   work stays on the compositor and remains smooth on low-end phones.
+   Motion — quiet, restrained
    ========================================================================== */
 
-:root {
-  --ease-out: cubic-bezier(0.2, 0, 0, 1);
-  --ease-in: cubic-bezier(0.4, 0, 1, 1);
-  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
-  --ease-spring: cubic-bezier(0.34, 1.3, 0.64, 1);
-
-  --dur-instant: 90ms;
-  --dur-fast: 140ms;
-  --dur-base: 200ms;
-  --dur-slow: 280ms;
-
-  /* Stagger unit — each item in a sequence offsets by this much. */
-  --stagger: 45ms;
-}
-
 @layer utilities {
-  /* ------------------------------------------------------------ easing */
-  .ease-out { transition-timing-function: var(--ease-out); }
+  .lift {
+    transition:
+      border-color 160ms cubic-bezier(0.2, 0, 0, 1),
+      box-shadow 160ms cubic-bezier(0.2, 0, 0, 1),
+      transform 160ms cubic-bezier(0.2, 0, 0, 1),
+      background-color 160ms cubic-bezier(0.2, 0, 0, 1);
+  }
 
-  /* -------------------------------------------------------- entrances */
+  @media (hover: hover) {
+    .lift:hover { transform: translateY(-2px); }
+  }
+
+  .press { transition: transform 90ms ease; }
+  .press:active { transform: scale(0.98); }
+
+  @keyframes ct-pop {
+    0% { transform: scale(0.7); opacity: 0; }
+    60% { transform: scale(1.08); opacity: 1; }
+    100% { transform: scale(1); }
+  }
+  .anim-pop { animation: ct-pop 240ms cubic-bezier(0.34, 1.3, 0.64, 1) both; }
+
+  @keyframes ct-tick {
+    0% { transform: scale(0) rotate(-12deg); }
+    100% { transform: scale(1) rotate(0); }
+  }
+  .anim-tick { animation: ct-tick 220ms cubic-bezier(0.34, 1.3, 0.64, 1) both; }
+
+  @keyframes ct-num-roll {
+    from { transform: translateY(-45%); opacity: 0; }
+    to { transform: none; opacity: 1; }
+  }
+  .anim-num { animation: ct-num-roll 180ms cubic-bezier(0.2, 0, 0, 1) both; }
+
   @keyframes ct-rise {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: none; }
   }
 
+  @keyframes ct-float {
+    0%, 100% { transform: translateY(0) rotate(var(--rot, 0deg)); }
+    50% { transform: translateY(-6px) rotate(var(--rot, 0deg)); }
+  }
+  .anim-rise { animation: ct-rise 200ms cubic-bezier(0.2, 0, 0, 1) both; }
+
   @keyframes ct-fade {
     from { opacity: 0; }
     to { opacity: 1; }
   }
+  .anim-fade { animation: ct-fade 200ms cubic-bezier(0.2, 0, 0, 1) both; }
+  .anim-float { animation: ct-float 6s ease-in-out infinite; }
 
-  @keyframes ct-scale-in {
-    from { opacity: 0; transform: scale(0.96); }
-    to { opacity: 1; transform: none; }
+  @keyframes ct-shake {
+    0%, 100% { transform: none; }
+    25% { transform: translateX(-3px); }
+    50% { transform: translateX(3px); }
+    75% { transform: translateX(-2px); }
   }
+  .anim-shake { animation: ct-shake 260ms cubic-bezier(0.2, 0, 0, 1) both; }
 
-  .anim-rise { animation: ct-rise var(--dur-base) var(--ease-out) both; }
-  .anim-fade { animation: ct-fade var(--dur-base) var(--ease-out) both; }
-  .anim-scale-in { animation: ct-scale-in var(--dur-base) var(--ease-out) both; }
+  @keyframes ct-ring {
+    0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--brand) 40%, transparent); }
+    100% { box-shadow: 0 0 0 10px transparent; }
+  }
+  .anim-ring { animation: ct-ring 520ms cubic-bezier(0.2, 0, 0, 1) both; }
 
-  /* Staggered children. Set --i on each child, or rely on the nth-child
-     fallback so markup needs no extra props. */
   .stagger > * {
-    animation: ct-rise var(--dur-base) var(--ease-out) both;
-    animation-delay: calc(var(--i, 0) * var(--stagger));
+    animation: ct-rise 200ms cubic-bezier(0.2, 0, 0, 1) both;
+    animation-delay: calc(var(--i, 0) * 45ms);
   }
 
   .stagger > *:nth-child(1) { --i: 0; }
@@ -305,100 +377,11 @@
   .stagger > *:nth-child(6) { --i: 5; }
   .stagger > *:nth-child(7) { --i: 6; }
   .stagger > *:nth-child(8) { --i: 7; }
+  .stagger > *:nth-child(9) { --i: 8; }
+  .stagger > *:nth-child(10) { --i: 9; }
+  .stagger > *:nth-child(11) { --i: 10; }
+  .stagger > *:nth-child(12) { --i: 11; }
 
-  /* ------------------------------------------------------- feedback */
-  @keyframes ct-pop {
-    0% { transform: scale(0.7); opacity: 0; }
-    60% { transform: scale(1.08); opacity: 1; }
-    100% { transform: scale(1); }
-  }
-  .anim-pop { animation: ct-pop 240ms var(--ease-spring) both; }
-
-  @keyframes ct-tick {
-    0% { transform: scale(0) rotate(-12deg); }
-    100% { transform: scale(1) rotate(0); }
-  }
-  .anim-tick { animation: ct-tick 220ms var(--ease-spring) both; }
-
-  @keyframes ct-num-roll {
-    from { transform: translateY(-45%); opacity: 0; }
-    to { transform: none; opacity: 1; }
-  }
-  .anim-num { animation: ct-num-roll 180ms var(--ease-out) both; }
-
-  /* Attention ring — used on the cart badge when its count changes. */
-  @keyframes ct-ring {
-    0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--brand) 40%, transparent); }
-    100% { box-shadow: 0 0 0 9px color-mix(in srgb, var(--brand) 0%, transparent); }
-  }
-  .anim-ring { animation: ct-ring 520ms var(--ease-out) both; }
-
-  /* Brand plate sheen — a single restrained sweep on hover. */
-  @keyframes ct-sheen {
-    from { transform: translateX(-130%) skewX(-14deg); }
-    to { transform: translateX(240%) skewX(-14deg); }
-  }
-
-  /* Leaving the cart. */
-  @keyframes ct-leave {
-    to { opacity: 0; transform: translateX(10px); }
-  }
-  .anim-leave { animation: ct-leave 160ms var(--ease-in) both; }
-
-  /* Validation nudge — a single restrained shake for invalid submit. */
-  @keyframes ct-shake {
-    0%, 100% { transform: none; }
-    25% { transform: translateX(-3px); }
-    50% { transform: translateX(3px); }
-    75% { transform: translateX(-2px); }
-  }
-  .anim-shake { animation: ct-shake 260ms var(--ease-out) both; }
-
-  /* -------------------------------------------------------- surfaces */
-  .lift {
-    transition:
-      border-color var(--dur-fast) var(--ease-out),
-      box-shadow var(--dur-fast) var(--ease-out),
-      transform var(--dur-fast) var(--ease-out),
-      background-color var(--dur-fast) var(--ease-out);
-  }
-
-  @media (hover: hover) {
-    .lift:hover { transform: translateY(-2px); }
-  }
-
-  .press {
-    transition: transform var(--dur-instant) var(--ease-out);
-  }
-
-  .press:active { transform: scale(0.98); }
-
-  /* Brand plate tint that deepens on hover, driven by the service's own
-     sampled colour. */
-  .plate-tint {
-    transition: background-color var(--dur-fast) var(--ease-out);
-  }
-
-  @media (hover: hover) {
-    .group:hover .plate-tint,
-    .plate-tint:hover {
-      background-color: color-mix(in srgb, var(--plate-color, transparent) 16%, #ffffff) !important;
-    }
-  }
-
-  /* Logo responds to the card, not on its own. */
-  .logo-respond {
-    transition: transform var(--dur-base) var(--ease-spring);
-  }
-
-  @media (hover: hover) {
-    .group:hover .logo-respond { transform: scale(1.05); }
-  }
-
-  .group:focus-visible .logo-respond { transform: scale(1.05); }
-
-  /* Pointer-tracked highlight. --mx/--my are written by JS (rAF-throttled);
-     without them the gradient simply stays centred and invisible. */
   .pointer-glow {
     background-image: radial-gradient(
       180px circle at var(--mx, 50%) var(--my, 50%),
@@ -407,24 +390,42 @@
     );
     background-repeat: no-repeat;
     opacity: 0;
-    transition: opacity var(--dur-base) var(--ease-out);
+    transition: opacity 200ms cubic-bezier(0.2, 0, 0, 1);
   }
 
   @media (hover: hover) {
     .group:hover .pointer-glow { opacity: 1; }
   }
 
-  /* Row selection wash used by plan lists. */
-  .row-select {
-    transition:
-      background-color var(--dur-fast) var(--ease-out),
-      border-color var(--dur-fast) var(--ease-out);
+  .plate-tint {
+    transition: background-color 160ms cubic-bezier(0.2, 0, 0, 1);
   }
 
-  /* ----------------------------------------------- reduced motion */
+  @media (hover: hover) {
+    .group:hover .plate-tint {
+      background-color: color-mix(in srgb, var(--plate-color, transparent) 16%, #ffffff) !important;
+    }
+  }
+
+  .logo-respond {
+    transition: transform 200ms cubic-bezier(0.34, 1.3, 0.64, 1);
+  }
+
+  @media (hover: hover) {
+    .group:hover .logo-respond { transform: scale(1.05); }
+  }
+
+  .row-select {
+    transition:
+      background-color 140ms cubic-bezier(0.2, 0, 0, 1),
+      border-color 140ms cubic-bezier(0.2, 0, 0, 1);
+  }
+
+  .lift:hover { transform: translateY(-2px); }
+
   @media (prefers-reduced-motion: reduce) {
     .anim-rise, .anim-fade, .anim-scale-in, .stagger > *,
-    .anim-pop, .anim-tick, .anim-num, .anim-ring, .anim-leave, .anim-shake {
+    .anim-pop, .anim-tick, .anim-num, .anim-ring, .anim-leave, .anim-shake, .anim-float {
       animation: none !important;
       opacity: 1 !important;
       transform: none !important;
@@ -437,7 +438,6 @@
 
     .pointer-glow { display: none; }
 
-    /* Keep state changes legible, just instant. */
     .lift, .press, .plate-tint, .logo-respond, .row-select, .pointer-glow {
       transition-duration: 1ms !important;
     }
