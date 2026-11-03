@@ -156,7 +156,7 @@ export default function Checkout() {
                         value={details.name}
                         onChange={(event) => update("name", event.target.value)}
                         onBlur={() => setTouched(true)}
-                        placeholder="e.g. Rami Haddad"
+                        placeholder="e.g. Your Name"
                         className={inputClasses(Boolean(touched && errors.name))}
                       />
                     </Field>
